@@ -5,7 +5,25 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20201001160620_databaseSetup.cs" />
+    <Compile Remove="Migrations\20201001160620_databaseSetup.Designer.cs" />
+    <Compile Remove="Migrations\20201001162044_databaseSetup.cs" />
+    <Compile Remove="Migrations\20201001162044_databaseSetup.Designer.cs" />
+    <Compile Remove="Migrations\20201001162206_databaseSetup.cs" />
+    <Compile Remove="Migrations\20201001162206_databaseSetup.Designer.cs" />
+    <Compile Remove="Migrations\20201001163021_databaseSetup.cs" />
+    <Compile Remove="Migrations\20201001163021_databaseSetup.Designer.cs" />
+    <Compile Remove="Migrations\20201001164907_linkedServiceProvidersAndServices.cs" />
+    <Compile Remove="Migrations\20201001164907_linkedServiceProvidersAndServices.Designer.cs" />
+    <Compile Remove="Migrations\20201001165028_linkedServiceProvidersAndServices.cs" />
+    <Compile Remove="Migrations\20201001165028_linkedServiceProvidersAndServices.Designer.cs" />
+    <Compile Remove="Migrations\20201001180142_addedBehaviur.cs" />
+    <Compile Remove="Migrations\20201001180142_addedBehaviur.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="10.0.0" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.8" />
@@ -13,12 +31,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Models\" />
-    <Folder Include="Dtos\" />
-    <Folder Include="Services\" />
   </ItemGroup>
 
 

@@ -5,11 +5,16 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using SKIPQzAPI.DataAccess;
+using AutoMapper;
+using SKIPQzAPI.Services;
 
 namespace SKIPQzAPI
 {
@@ -25,7 +30,20 @@ namespace SKIPQzAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddControllersWithViews();
+            services.AddDbContext<ApplicationDbContext>(config =>
+            {
+                config.UseSqlServer(Configuration.GetConnectionString("Default"));
+            });
+
+            services
+                .AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+
+            services.AddAutoMapper(typeof(Startup));
+            services.AddScoped<ServiceProviderService>();
+                
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
