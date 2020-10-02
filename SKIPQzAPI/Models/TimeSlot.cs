@@ -17,7 +17,7 @@ namespace SKIPQzAPI.Models
 
         public DateTime Time { get; set; }
 
-        public Schedule Schedule { get; set; }
+        public Schedule Schedule { get; set; } 
 
         public string GetTimeSlot() => $"{Time.Hour.ToString()}:{Time.Minute.ToString()}";
 

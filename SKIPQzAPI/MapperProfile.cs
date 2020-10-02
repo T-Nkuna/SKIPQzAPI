@@ -25,6 +25,9 @@ namespace SKIPQzAPI
                 .ForMember(dest=>dest.Email,op=>op.MapFrom<ServiceProviderDtoEmailResolver>())
                 .ForMember(dest=>dest.Name,op=>op.MapFrom<ServiceProviderDtoNameResolver>());
             CreateMap<ServiceProviderDto, ServiceProvider>();
+
+            CreateMap<ServiceDto, Service>();
+            CreateMap<Service, ServiceDto>();
             
         }
     }

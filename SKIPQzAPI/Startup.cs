@@ -43,6 +43,7 @@ namespace SKIPQzAPI
 
             services.AddAutoMapper(typeof(Startup));
             services.AddScoped<ServiceProviderService>();
+            services.AddScoped<ServiceService>();
                 
         }
 

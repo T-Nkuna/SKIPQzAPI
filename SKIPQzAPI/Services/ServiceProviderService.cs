@@ -36,6 +36,7 @@ namespace SKIPQzAPI.Services
         public IEnumerable<ServiceProviderDto> GetServiceProviders(int serviceId,int pageSize,int pageIndex=0)
         {
            return _dbContext.ServiceProviderServices
+                .OrderByDescending(spsRec => spsRec.ServiceProvider.ServiceProviderId)
                 .Where(rec => rec.Service.ServiceId == serviceId)
                 .Skip(pageIndex*pageSize)
                 .Take(pageSize)
@@ -47,6 +48,7 @@ namespace SKIPQzAPI.Services
         public IEnumerable<ServiceProviderDto> GetServiceProviders(int pageSize, int pageIndex = 0)
         {
             return _dbContext.ServiceProviders
+                 .OrderByDescending(sp=>sp.ServiceProviderId)
                  .Skip(pageIndex * pageSize)
                  .Take(pageSize)
                  .ToList()
