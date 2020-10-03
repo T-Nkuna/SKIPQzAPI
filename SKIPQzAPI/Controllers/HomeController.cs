@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using SKIPQzAPI.Models;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -14,10 +15,14 @@ namespace SKIPQzAPI.Controllers
     {
         // GET: api/<HomeController>
         [HttpGet]
-        public string Get()
+        public List<string> Get()
         {
-            return "SKIPQz API";
-        }
+            TimeComponent tc = new TimeComponent(12, 30);
+            var tSlot = new TimeSlot();
+            var slots = TimeComponentInterval.GenerateTimeComponents(DayTimeInterVal.Evening.StartHours, DayTimeInterVal.Evening.EndHours, 15);
+            var timeOfDay = TimeComponentInterval.ClassifyHour(9);
+            return TimeComponentInterval.GenerateTimeComponents(timeOfDay,15).Select(ts=>ts.ToString()).ToList();
+         }
 
         // GET api/<HomeController>/5
         [HttpGet("{id}")]
