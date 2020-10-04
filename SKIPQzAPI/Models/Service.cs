@@ -17,9 +17,6 @@ namespace SKIPQzAPI.Models
         public double Duration { get; set; }
 
         public int ServiceId { get; set; }
-
-        public Schedule Schedule { get; set; }
-
         public decimal Cost { get; set; }
     }
 }

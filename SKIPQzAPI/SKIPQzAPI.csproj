@@ -19,6 +19,10 @@
     <Compile Remove="Migrations\20201001165028_linkedServiceProvidersAndServices.Designer.cs" />
     <Compile Remove="Migrations\20201001180142_addedBehaviur.cs" />
     <Compile Remove="Migrations\20201001180142_addedBehaviur.Designer.cs" />
+    <Compile Remove="Migrations\20201004142101_addedTimeManagementTables.cs" />
+    <Compile Remove="Migrations\20201004142101_addedTimeManagementTables.Designer.cs" />
+    <Compile Remove="Migrations\20201004143116_addedTimeManagementTables.cs" />
+    <Compile Remove="Migrations\20201004143116_addedTimeManagementTables.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SKIPQzAPI.DataAccess;
 
 namespace SKIPQzAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201003162904_linkedTimeSlotsToSchedule")]
+    partial class linkedTimeSlotsToSchedule
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -215,6 +217,28 @@ namespace SKIPQzAPI.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("SKIPQzAPI.Models.Schedule", b =>
+                {
+                    b.Property<int>("ScheduleId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(255)")
+                        .HasMaxLength(255);
+
+                    b.Property<int>("Owner")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OwnerId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ScheduleId");
+
+                    b.ToTable("Schedules");
+                });
+
             modelBuilder.Entity("SKIPQzAPI.Models.Service", b =>
                 {
                     b.Property<int>("ServiceId")
@@ -235,7 +259,12 @@ namespace SKIPQzAPI.Migrations
                         .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
 
+                    b.Property<int?>("ScheduleId")
+                        .HasColumnType("int");
+
                     b.HasKey("ServiceId");
+
+                    b.HasIndex("ScheduleId");
 
                     b.ToTable("Services");
                 });
@@ -251,10 +280,15 @@ namespace SKIPQzAPI.Migrations
                         .HasColumnType("nvarchar(255)")
                         .HasMaxLength(255);
 
+                    b.Property<int?>("ScheduleId")
+                        .HasColumnType("int");
+
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("ServiceProviderId");
+
+                    b.HasIndex("ScheduleId");
 
                     b.HasIndex("UserId");
 
@@ -283,69 +317,30 @@ namespace SKIPQzAPI.Migrations
                     b.ToTable("ServiceProviderServices");
                 });
 
-            modelBuilder.Entity("SKIPQzAPI.Models.Time.TimeComponent", b =>
+            modelBuilder.Entity("SKIPQzAPI.Models.TimeSlot", b =>
                 {
-                    b.Property<int>("TimeComponentId")
+                    b.Property<int>("TimeSlotId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<double>("Hour")
-                        .HasColumnType("float");
-
-                    b.Property<double>("Minute")
-                        .HasColumnType("float");
-
-                    b.HasKey("TimeComponentId");
-
-                    b.ToTable("TimeComponents");
-                });
-
-            modelBuilder.Entity("SKIPQzAPI.Models.Time.TimeComponentInterval", b =>
-                {
-                    b.Property<int>("TimeComponentIntervalId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int?>("EndTimeTimeComponentId")
+                    b.Property<int?>("ScheduleId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("StartTimeTimeComponentId")
+                    b.Property<int>("TheDayOfWeek")
                         .HasColumnType("int");
 
-                    b.Property<int?>("WorkingDayId")
+                    b.Property<int>("TheTimeOfDay")
                         .HasColumnType("int");
 
-                    b.HasKey("TimeComponentIntervalId");
+                    b.Property<string>("TimeSlotString")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasIndex("EndTimeTimeComponentId");
+                    b.HasKey("TimeSlotId");
 
-                    b.HasIndex("StartTimeTimeComponentId");
+                    b.HasIndex("ScheduleId");
 
-                    b.HasIndex("WorkingDayId");
-
-                    b.ToTable("TimeComponentIntervals");
-                });
-
-            modelBuilder.Entity("SKIPQzAPI.Models.Time.WorkingDay", b =>
-                {
-                    b.Property<int>("WorkingDayId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int?>("ServiceProviderId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("WeekDay")
-                        .HasColumnType("int");
-
-                    b.HasKey("WorkingDayId");
-
-                    b.HasIndex("ServiceProviderId");
-
-                    b.ToTable("WorkingDay");
+                    b.ToTable("TimeSlots");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -399,8 +394,19 @@ namespace SKIPQzAPI.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("SKIPQzAPI.Models.Service", b =>
+                {
+                    b.HasOne("SKIPQzAPI.Models.Schedule", "Schedule")
+                        .WithMany()
+                        .HasForeignKey("ScheduleId");
+                });
+
             modelBuilder.Entity("SKIPQzAPI.Models.ServiceProvider", b =>
                 {
+                    b.HasOne("SKIPQzAPI.Models.Schedule", "Schedule")
+                        .WithMany()
+                        .HasForeignKey("ScheduleId");
+
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
@@ -417,26 +423,11 @@ namespace SKIPQzAPI.Migrations
                         .HasForeignKey("ServiceProviderId");
                 });
 
-            modelBuilder.Entity("SKIPQzAPI.Models.Time.TimeComponentInterval", b =>
+            modelBuilder.Entity("SKIPQzAPI.Models.TimeSlot", b =>
                 {
-                    b.HasOne("SKIPQzAPI.Models.Time.TimeComponent", "EndTime")
-                        .WithMany()
-                        .HasForeignKey("EndTimeTimeComponentId");
-
-                    b.HasOne("SKIPQzAPI.Models.Time.TimeComponent", "StartTime")
-                        .WithMany()
-                        .HasForeignKey("StartTimeTimeComponentId");
-
-                    b.HasOne("SKIPQzAPI.Models.Time.WorkingDay", null)
-                        .WithMany("Shifts")
-                        .HasForeignKey("WorkingDayId");
-                });
-
-            modelBuilder.Entity("SKIPQzAPI.Models.Time.WorkingDay", b =>
-                {
-                    b.HasOne("SKIPQzAPI.Models.ServiceProvider", null)
-                        .WithMany("WorkingDays")
-                        .HasForeignKey("ServiceProviderId");
+                    b.HasOne("SKIPQzAPI.Models.Schedule", "Schedule")
+                        .WithMany("TimeSlots")
+                        .HasForeignKey("ScheduleId");
                 });
 #pragma warning restore 612, 618
         }
