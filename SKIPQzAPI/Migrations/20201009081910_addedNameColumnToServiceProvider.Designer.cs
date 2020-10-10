@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SKIPQzAPI.DataAccess;
 
 namespace SKIPQzAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201009081910_addedNameColumnToServiceProvider")]
+    partial class addedNameColumnToServiceProvider
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -317,7 +319,7 @@ namespace SKIPQzAPI.Migrations
                     b.Property<int?>("StartTimeTimeComponentId")
                         .HasColumnType("int");
 
-                    b.Property<int>("WorkingDayId")
+                    b.Property<int?>("WorkingDayId")
                         .HasColumnType("int");
 
                     b.HasKey("TimeComponentIntervalId");
@@ -338,7 +340,7 @@ namespace SKIPQzAPI.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("ServiceProviderId")
+                    b.Property<int?>("ServiceProviderId")
                         .HasColumnType("int");
 
                     b.Property<int>("WeekDay")
@@ -348,7 +350,7 @@ namespace SKIPQzAPI.Migrations
 
                     b.HasIndex("ServiceProviderId");
 
-                    b.ToTable("WorkingDays");
+                    b.ToTable("WorkingDay");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -432,18 +434,14 @@ namespace SKIPQzAPI.Migrations
 
                     b.HasOne("SKIPQzAPI.Models.Time.WorkingDay", null)
                         .WithMany("Shifts")
-                        .HasForeignKey("WorkingDayId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("WorkingDayId");
                 });
 
             modelBuilder.Entity("SKIPQzAPI.Models.Time.WorkingDay", b =>
                 {
                     b.HasOne("SKIPQzAPI.Models.ServiceProvider", null)
                         .WithMany("WorkingDays")
-                        .HasForeignKey("ServiceProviderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ServiceProviderId");
                 });
 #pragma warning restore 612, 618
         }

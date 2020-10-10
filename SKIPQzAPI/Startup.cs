@@ -44,6 +44,15 @@ namespace SKIPQzAPI
             services.AddAutoMapper(typeof(Startup));
             services.AddScoped<ServiceProviderService>();
             services.AddScoped<ServiceService>();
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CrossOriginAccess", config =>
+                {
+                    config.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+                });
+            });
                 
         }
 
@@ -60,7 +69,7 @@ namespace SKIPQzAPI
             app.UseRouting();
 
             app.UseAuthorization();
-
+            app.UseCors("CrossOriginAccess");
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

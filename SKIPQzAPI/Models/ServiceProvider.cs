@@ -17,6 +17,7 @@ namespace SKIPQzAPI.Models
         [MaxLength(255)]
         public string ImageUrl { get; set; }
 
+        public string Name { get; set; }
         public List<WorkingDay> WorkingDays { get; set; }
   
     }

@@ -69,7 +69,7 @@ namespace SKIPQzAPI.Services
                 }
             }
             var sProvider = _mapper.Map<ServiceProvider>(serviceProvider);
-            var userRec = new IdentityUser() { UserName = serviceProvider.Name,Email=serviceProvider.Email };
+            var userRec = new IdentityUser() { Email=serviceProvider.Email , UserName=serviceProvider.Email};
             var userCreated =  await _userManager.CreateAsync(userRec);
             IdentityUser newUser = null;
             int affected = 0;

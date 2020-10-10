@@ -12,11 +12,13 @@ namespace SKIPQzAPI.Dtos
         public string Name { get; set; }
 
         [MaxLength(255)]
-        public string ImageUrl { get; set; }
-
-        [MaxLength(255)]
         public string Email { get; set; }
 
         public int ServiceProviderId { get; set; }
+
+        public List<WorkingDayDto> ScheduledWorkDays { get; set; }
+
+        public List<ServiceDto> Services { get; set; }
     }
+
 }

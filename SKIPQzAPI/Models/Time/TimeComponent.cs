@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace SKIPQzAPI.Models.Time
@@ -12,6 +13,22 @@ namespace SKIPQzAPI.Models.Time
         {
             Hour = hour;
             Minute = minute;
+        }
+
+        public TimeComponent(string timeString)
+        {
+            var timeStringPattern = new Regex(@"\d+:\d+");
+            if(timeStringPattern.IsMatch(timeString))
+            {
+                var match = timeStringPattern.Match(timeString).Value;
+                Hour = Convert.ToDouble(match.Split(':').ElementAt(0));
+                Minute =Convert.ToDouble(match.Split(':').ElementAt(1));
+            }
+            else
+            {
+                Hour = 0;
+                Minute = 0;
+            }
         }
 
         public double Hour { get; set; }

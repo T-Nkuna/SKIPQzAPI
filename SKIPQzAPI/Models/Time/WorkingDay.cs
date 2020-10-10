@@ -16,6 +16,7 @@ namespace SKIPQzAPI.Models.Time
 
         public DayOfWeek WeekDay { get; set; }
 
+        public int ServiceProviderId { get; set; }
         public List<TimeComponentInterval> Shifts { get; set; }
     }
 }

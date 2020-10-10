@@ -13,7 +13,7 @@ namespace SKIPQzAPI.DataAccess
     {
         public DbSet<Service> Services { get; set; }
         public DbSet<TimeComponent> TimeComponents { get; set; }
-
+        public DbSet<WorkingDay> WorkingDays { get; set; }
         public DbSet<TimeComponentInterval> TimeComponentIntervals { get; set; }
         public DbSet<ServiceProviderServices> ServiceProviderServices{get;set;}
         public DbSet<ServiceProvider> ServiceProviders { get; set; }

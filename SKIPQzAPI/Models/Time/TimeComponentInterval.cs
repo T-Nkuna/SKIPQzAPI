@@ -16,6 +16,7 @@ namespace SKIPQzAPI.Models.Time
             EndTime = endTime;
         }
      
+        public int WorkingDayId { get; set; }
         public int TimeComponentIntervalId{get;set;}
 
         public TimeComponent StartTime
