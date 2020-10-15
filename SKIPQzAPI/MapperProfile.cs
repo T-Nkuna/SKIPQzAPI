@@ -63,7 +63,10 @@ namespace SKIPQzAPI
                     StartTimeSlot = shift.StartTime.ToString()
                 }).ToList()
             }).ToList();
-
+            sPDto.Services = _dbContext.ServiceProviderServices
+                            .Where(sps => sps.ServiceProvider.ServiceProviderId == source.ServiceProviderId)
+                            .Join(_dbContext.Services, (sps) => sps.Service.ServiceId, (sv) => sv.ServiceId, (sps, sv) => new ServiceDto { Name = sv.Name, Duration = sv.Duration, Cost = sv.Cost, ServiceId = sv.ServiceId })
+                            .ToList();
             return sPDto;
         }
     }

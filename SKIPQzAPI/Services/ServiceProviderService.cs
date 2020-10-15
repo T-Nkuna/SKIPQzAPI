@@ -79,11 +79,23 @@ namespace SKIPQzAPI.Services
                 sProvider.User = newUser;
 
                 await _dbContext.AddAsync(sProvider);
-                affected = await _dbContext.SaveChangesAsync();
+               
                 if (spRole != null)
                 {
                     await _userManager.AddToRoleAsync(newUser, spRole.Name);
                 }
+
+                //add services to the service provider
+                serviceProvider.Services.ForEach(sv => {
+                    var sourceService = _dbContext.Services.FirstOrDefault(service => service.ServiceId == sv.ServiceId);
+                    if(sourceService!=null)
+                    {
+                        _dbContext.ServiceProviderServices.Add(new ServiceProviderServices { Service = sourceService, ServiceProvider = sProvider });
+                    }
+                    
+                });
+
+                affected = await _dbContext.SaveChangesAsync();
             }
            
            

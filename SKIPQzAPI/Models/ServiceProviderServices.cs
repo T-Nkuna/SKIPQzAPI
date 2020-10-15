@@ -10,7 +10,6 @@ namespace SKIPQzAPI.Models
     {
         public Service Service { get; set; }
         public ServiceProvider ServiceProvider { get; set; }
-
         public int ServiceProviderServicesId { get; set; }
     }
 }
