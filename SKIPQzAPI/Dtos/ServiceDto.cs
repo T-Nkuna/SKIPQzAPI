@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,5 +16,9 @@ namespace SKIPQzAPI.Dtos
         public int ServiceId { get; set; }
 
         public decimal Cost { get; set; }
+
+        public IFormFile ImageFile { get; set; }
+
+        public string ImageUrl { get; set; } = "";
     }
 }

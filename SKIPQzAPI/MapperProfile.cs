@@ -67,6 +67,7 @@ namespace SKIPQzAPI
                             .Where(sps => sps.ServiceProvider.ServiceProviderId == source.ServiceProviderId)
                             .Join(_dbContext.Services, (sps) => sps.Service.ServiceId, (sv) => sv.ServiceId, (sps, sv) => new ServiceDto { Name = sv.Name, Duration = sv.Duration, Cost = sv.Cost, ServiceId = sv.ServiceId })
                             .ToList();
+            sPDto.ImageUrl = source.ImageUrl;
             return sPDto;
         }
     }
@@ -84,6 +85,7 @@ namespace SKIPQzAPI
             sProvider.WorkingDays = sourceMember.ScheduledWorkDays.Select(sD => new WorkingDay { WeekDay = sD.DayOfWeek, Shifts = sD.Shifts.Select(tI => new TimeComponentInterval(new TimeComponent(tI.StartTimeSlot), new TimeComponent(tI.EndTimeSlot))).ToList() }).ToList();
             sProvider.ServiceProviderId = sourceMember.ServiceProviderId;
             sProvider.User = _dbContext.Users.FirstOrDefault(user => user.Email == sourceMember.Email);
+            sProvider.ImageUrl = sourceMember.ImageUrl;
             return sProvider;
         }
     }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -19,6 +20,10 @@ namespace SKIPQzAPI.Dtos
         public List<WorkingDayDto> ScheduledWorkDays { get; set; }
 
         public List<ServiceDto> Services { get; set; }
+
+        public string ImageUrl { get; set; }
+
+        public IFormFile ImageFile { get; set; }
     }
 
 }

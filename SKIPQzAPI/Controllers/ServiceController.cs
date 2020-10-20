@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SKIPQzAPI.Dtos;
 using SKIPQzAPI.Services;
@@ -12,7 +14,7 @@ namespace SKIPQzAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ServiceController : ControllerBase
+    public class ServiceController : Controller
     {
         private readonly ServiceService _servicesService;
         public ServiceController(ServiceService servicesService)
@@ -35,15 +37,23 @@ namespace SKIPQzAPI.Controllers
 
         // POST api/<ServiceController>
         [HttpPost]
-        public async Task<ServiceDto> Post([FromBody] ServiceDto value)
+        public async Task<ServiceDto> Post()
         {
-            return  await _servicesService.AddService(value);
+            var value = Request.Form;
+            var service = new ServiceDto();
+            service.Cost = Convert.ToDecimal(value["cost"]);
+            service.Duration = Convert.ToDouble(value["duration"]);
+            service.Name = value["name"];
+            service.ImageFile = value.Files["imageFile"];
+            
+            return  await _servicesService.AddService(service);
         }
 
         // PUT api/<ServiceController>/5
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] string value)
         {
+
         }
 
         // DELETE api/<ServiceController>/5

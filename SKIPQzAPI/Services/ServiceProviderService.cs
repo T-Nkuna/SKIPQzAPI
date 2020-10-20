@@ -5,6 +5,7 @@ using SKIPQzAPI.Dtos;
 using SKIPQzAPI.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -79,7 +80,19 @@ namespace SKIPQzAPI.Services
                 sProvider.User = newUser;
 
                 await _dbContext.AddAsync(sProvider);
-               
+                affected = await _dbContext.SaveChangesAsync();
+                var lastAddedServiceProvider = _dbContext.ServiceProviders.OrderByDescending(sp=>sp.ServiceProviderId).FirstOrDefault();
+                if(lastAddedServiceProvider!=null)
+                {
+                    var imageFileName = $"serviceProvider_{lastAddedServiceProvider.ServiceProviderId}" + Path.GetExtension(serviceProvider.ImageFile.FileName);
+                    var imageFilePath = Path.Combine("./wwwroot/images",imageFileName);
+                    using(var fStream = new FileStream(imageFilePath,FileMode.Create))
+                    {
+                       await serviceProvider.ImageFile.CopyToAsync(fStream);
+                       lastAddedServiceProvider.ImageUrl = $"images/{imageFileName}";
+                    }
+
+                }
                 if (spRole != null)
                 {
                     await _userManager.AddToRoleAsync(newUser, spRole.Name);

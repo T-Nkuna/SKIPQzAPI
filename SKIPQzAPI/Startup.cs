@@ -15,6 +15,8 @@ using Microsoft.Extensions.Logging;
 using SKIPQzAPI.DataAccess;
 using AutoMapper;
 using SKIPQzAPI.Services;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 namespace SKIPQzAPI
 {
@@ -35,7 +37,7 @@ namespace SKIPQzAPI
             {
                 config.UseSqlServer(Configuration.GetConnectionString("Default"));
             });
-
+            
             services
                 .AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -65,11 +67,22 @@ namespace SKIPQzAPI
             }
 
             app.UseHttpsRedirection();
+            app.UseStaticFiles(); // For the wwwroot folder.
 
+            // using Microsoft.Extensions.FileProviders;
+            // using System.IO;
+            app.UseFileServer(new FileServerOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+                    Path.Combine(env.ContentRootPath, "wwwroot\\Images")),
+                RequestPath = "/Images",
+                EnableDirectoryBrowsing = true
+            });
             app.UseRouting();
 
             app.UseAuthorization();
             app.UseCors("CrossOriginAccess");
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

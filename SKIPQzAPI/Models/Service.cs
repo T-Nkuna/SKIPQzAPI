@@ -13,10 +13,9 @@ namespace SKIPQzAPI.Models
         public string Name { get; set; }
 
         public string Description { get; set; }
-
         public double Duration { get; set; }
-
         public int ServiceId { get; set; }
         public decimal Cost { get; set; }
+        public string ImageUrl { get; set; } = "";
     }
 }

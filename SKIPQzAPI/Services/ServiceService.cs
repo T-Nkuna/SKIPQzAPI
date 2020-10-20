@@ -4,6 +4,7 @@ using SKIPQzAPI.Dtos;
 using SKIPQzAPI.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -25,6 +26,20 @@ namespace SKIPQzAPI.Services
             await _dbContext.AddAsync(addedService);
             var affected = await _dbContext.SaveChangesAsync();
             var lastAddedService = _dbContext.Services.OrderByDescending(s=>s.ServiceId).FirstOrDefault();
+            var imageFileName = $"service_{lastAddedService.ServiceId}" + Path.GetExtension(service.ImageFile.FileName);
+            var filePath = Path.Combine(@".\wwwroot\images", imageFileName);
+
+            if (lastAddedService!=null)
+            {
+                lastAddedService.ImageUrl = $"images/{imageFileName}";
+                affected = await _dbContext.SaveChangesAsync();
+            }
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+              await service.ImageFile.CopyToAsync(stream);
+
+            }
+            
             return affected > 0 ? _mapper.Map<ServiceDto>(lastAddedService) : null;
         }
 

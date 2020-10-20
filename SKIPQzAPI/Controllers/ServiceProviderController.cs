@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using SKIPQzAPI.Dtos;
 using SKIPQzAPI.Services;
 
@@ -12,7 +13,7 @@ namespace SKIPQzAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ServiceProviderController : ControllerBase
+    public class ServiceProviderController : Controller
     {
         private readonly ServiceProviderService _serviceProviderService;
         public ServiceProviderController(ServiceProviderService serviceProviderService)
@@ -35,9 +36,17 @@ namespace SKIPQzAPI.Controllers
 
         // POST api/<ServiceProviderController>
         [HttpPost]
-        public async Task<ServiceProviderDto> Post([FromBody] ServiceProviderDto value)
+        public async Task<ServiceProviderDto> Post()
         {
-           return await _serviceProviderService.AddServiceProvider(value);
+            var value = Request.Form;
+            var sp = new ServiceProviderDto {
+                Name = value["name"],
+                Email = value["email"],
+                ScheduledWorkDays = JsonConvert.DeserializeObject<List<WorkingDayDto>>(value["scheduledWorkDays"]),
+                Services = JsonConvert.DeserializeObject<List<ServiceDto>>(value["services"]),
+                ImageFile = value.Files["imageFile"]
+            };
+           return await _serviceProviderService.AddServiceProvider(sp);
         }
 
         // PUT api/<ServiceProviderController>/5

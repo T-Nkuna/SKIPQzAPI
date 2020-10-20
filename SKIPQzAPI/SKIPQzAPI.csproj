@@ -38,5 +38,13 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\Images\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\Images\wbqcgcnq.hyx" />
+  </ItemGroup>
+
 
 </Project>
