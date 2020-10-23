@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Identity;
 using SKIPQzAPI.DataAccess;
 using SKIPQzAPI.Dtos;
 using SKIPQzAPI.Models;
+using SKIPQzAPI.Models.Time;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace SKIPQzAPI.Services
@@ -127,6 +129,43 @@ namespace SKIPQzAPI.Services
             else
             {
                 return null;
+            }
+        }
+
+        public List<string> GetServiceTimeSlots(int serviceProviderId, int serviceId, string dateString)
+        {
+            var pattern = new Regex(@"\d{4}\-\d{1,2}\-\d{1,2}");
+            if(!pattern.IsMatch(dateString))
+            {
+                return new List<string>();
+            }
+            else
+            {
+                var matchedStr = pattern.Match(dateString).Value;
+                var strDigits = matchedStr.Split('-').Select(digitStr => Convert.ToInt32(digitStr)).ToList();
+                var bookedDate = new DateTime(strDigits[0], strDigits[1]+1, strDigits[2]);
+                return GetServiceTimeSlots(serviceProviderId, serviceId, bookedDate.DayOfWeek);
+            }
+
+        }
+        public  List<string> GetServiceTimeSlots(int serviceProviderId,int serviceId,DayOfWeek dayOfWeek)
+        {
+            var serviceProvider =_dbContext.ServiceProviders.FirstOrDefault(sP => sP.ServiceProviderId == serviceProviderId);
+            var service = _dbContext.Services.FirstOrDefault(service => service.ServiceId == serviceId);
+            var targetWorkingDay = _dbContext.WorkingDays
+                .Where(wd => wd.ServiceProviderId == serviceProviderId && wd.WeekDay == dayOfWeek)
+                .Select(wd => new WorkingDay { Shifts = wd.Shifts.Select(tcI => new TimeComponentInterval(new TimeComponent(tcI.StartTime.Hour, tcI.StartTime.Minute), new TimeComponent(tcI.EndTime.Hour, tcI.EndTime.Minute))).ToList() })
+                .FirstOrDefault();
+            
+            if(service!=null && serviceProvider!=null && targetWorkingDay!=null && targetWorkingDay.Shifts.Count()>0)
+            {
+               
+               
+                return service.Duration==0? new List<string>():TimeComponentInterval.GenerateTimeComponents(targetWorkingDay.Shifts[0].StartTime.Hour, targetWorkingDay.Shifts[0].EndTime.Hour, service.Duration).Select(tc=>tc.ToString()).ToList();
+            }
+            else
+            {
+                return new List<string>();
             }
         }
     }

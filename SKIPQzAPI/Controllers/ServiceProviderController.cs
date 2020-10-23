@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using SKIPQzAPI.Dtos;
+using SKIPQzAPI.Models.Time;
 using SKIPQzAPI.Services;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -60,6 +62,13 @@ namespace SKIPQzAPI.Controllers
         public async Task<ServiceProviderDto> Delete(int id)
         {
             return await _serviceProviderService.DeleteServiceProvider(id);
+        }
+
+        [HttpGet("{id}/services/{serviceId}/{dateString}")]
+        public List<string> GetServiceProviderTimeSlots(int id,int serviceId,string dateString)
+        {
+            
+            return _serviceProviderService.GetServiceTimeSlots(id, serviceId,dateString);
         }
     }
 }

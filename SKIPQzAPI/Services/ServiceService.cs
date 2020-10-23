@@ -22,25 +22,33 @@ namespace SKIPQzAPI.Services
 
         public async Task<ServiceDto> AddService(ServiceDto service)
         {
-            var addedService = _mapper.Map<Service>(service);
-            await _dbContext.AddAsync(addedService);
-            var affected = await _dbContext.SaveChangesAsync();
-            var lastAddedService = _dbContext.Services.OrderByDescending(s=>s.ServiceId).FirstOrDefault();
-            var imageFileName = $"service_{lastAddedService.ServiceId}" + Path.GetExtension(service.ImageFile.FileName);
-            var filePath = Path.Combine(@".\wwwroot\images", imageFileName);
-
-            if (lastAddedService!=null)
+            try
             {
-                lastAddedService.ImageUrl = $"images/{imageFileName}";
-                affected = await _dbContext.SaveChangesAsync();
+                var addedService = _mapper.Map<Service>(service);
+                await _dbContext.AddAsync(addedService);
+                var affected = await _dbContext.SaveChangesAsync();
+                var lastAddedService = _dbContext.Services.OrderByDescending(s => s.ServiceId).FirstOrDefault();
+                var imageFileName = $"service_{lastAddedService.ServiceId}" + Path.GetExtension(service.ImageFile.FileName);
+                var filePath = Path.Combine(@".\wwwroot\images", imageFileName);
+
+                if (lastAddedService != null)
+                {
+                    lastAddedService.ImageUrl = $"images/{imageFileName}";
+                    affected = await _dbContext.SaveChangesAsync();
+                }
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await service.ImageFile.CopyToAsync(stream);
+
+                }
+
+                return affected > 0 ? _mapper.Map<ServiceDto>(lastAddedService) : null;
             }
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            catch(Exception ex)
             {
-              await service.ImageFile.CopyToAsync(stream);
-
+                return new ServiceDto() { Name=ex.Message+"\n"+ex.StackTrace};
             }
             
-            return affected > 0 ? _mapper.Map<ServiceDto>(lastAddedService) : null;
         }
 
         public IEnumerable<ServiceDto> GetServices(int pageIndex,int pageSize)
