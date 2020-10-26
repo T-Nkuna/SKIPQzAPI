@@ -20,6 +20,25 @@ namespace SKIPQzAPI.Services
             _dbContext = dbConext;
         }
 
+        public async Task<ServiceDto> UpdateService(ServiceDto serviceDTO)
+        {
+            Service service = _mapper.Map<Service>(serviceDTO);
+            _dbContext.Update(service);
+            int affected = await _dbContext.SaveChangesAsync();
+            if(serviceDTO.ImageFile!=null)
+            {
+                string fileName = $"service_{service.ServiceId}{Path.GetExtension(serviceDTO.ImageFile.FileName)}";
+                string filePath = Path.Combine(@".\wwwroot\images", fileName);
+                using(var fs = new FileStream(filePath,FileMode.Create))
+                {
+                    await serviceDTO.ImageFile.CopyToAsync(fs);
+                }
+                service.ImageUrl = $"images/{fileName}";
+                affected = await _dbContext.SaveChangesAsync();
+            }
+
+            return affected > 0 ? _mapper.Map<ServiceDto>(service) : null;
+        }
         public async Task<ServiceDto> AddService(ServiceDto service)
         {
             try
@@ -28,19 +47,21 @@ namespace SKIPQzAPI.Services
                 await _dbContext.AddAsync(addedService);
                 var affected = await _dbContext.SaveChangesAsync();
                 var lastAddedService = _dbContext.Services.OrderByDescending(s => s.ServiceId).FirstOrDefault();
-                var imageFileName = $"service_{lastAddedService.ServiceId}" + Path.GetExtension(service.ImageFile.FileName);
-                var filePath = Path.Combine(@".\wwwroot\images", imageFileName);
+               
 
-                if (lastAddedService != null)
+                if (lastAddedService != null && service.ImageFile!=null)
                 {
+                    var imageFileName = $"service_{lastAddedService.ServiceId}" + Path.GetExtension(service.ImageFile.FileName);
+                    var filePath = Path.Combine(@".\wwwroot\images", imageFileName);
                     lastAddedService.ImageUrl = $"images/{imageFileName}";
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await service.ImageFile.CopyToAsync(stream);
+
+                    }
                     affected = await _dbContext.SaveChangesAsync();
                 }
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await service.ImageFile.CopyToAsync(stream);
-
-                }
+               
 
                 return affected > 0 ? _mapper.Map<ServiceDto>(lastAddedService) : null;
             }

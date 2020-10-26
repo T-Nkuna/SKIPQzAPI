@@ -51,9 +51,18 @@ namespace SKIPQzAPI.Controllers
 
         // PUT api/<ServiceController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task<ServiceDto> Put()
         {
-
+            IFormCollection form = Request.Form;
+            ServiceDto serviceDTO = new ServiceDto
+            {
+                Cost = Convert.ToDecimal(form["cost"]),
+                Duration = Convert.ToDouble(form["duration"]),
+                ImageFile = form.Files["imageFile"],
+                Name = form["name"],
+                ServiceId = Convert.ToInt32(form["serviceId"])
+            };
+            return await _servicesService.UpdateService(serviceDTO);
         }
 
         // DELETE api/<ServiceController>/5
