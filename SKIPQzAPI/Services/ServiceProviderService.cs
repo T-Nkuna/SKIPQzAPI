@@ -84,7 +84,7 @@ namespace SKIPQzAPI.Services
                 await _dbContext.AddAsync(sProvider);
                 affected = await _dbContext.SaveChangesAsync();
                 var lastAddedServiceProvider = _dbContext.ServiceProviders.OrderByDescending(sp=>sp.ServiceProviderId).FirstOrDefault();
-                if(lastAddedServiceProvider!=null)
+                if(lastAddedServiceProvider!=null && serviceProvider.ImageFile!=null)
                 {
                     var imageFileName = $"serviceProvider_{lastAddedServiceProvider.ServiceProviderId}" + Path.GetExtension(serviceProvider.ImageFile.FileName);
                     var imageFilePath = Path.Combine("./wwwroot/images",imageFileName);
@@ -167,6 +167,54 @@ namespace SKIPQzAPI.Services
             {
                 return new List<string>();
             }
+        }
+
+        public async Task<ServiceProviderDto> UpdateServiceProvider(ServiceProviderDto serviceProviderDto)
+        {
+            ServiceProvider serviceProvider = _mapper.Map<ServiceProvider>(serviceProviderDto);
+           
+            if(serviceProvider.ServiceProviderId>0)
+            {
+                _dbContext.Update(serviceProvider);
+                var spsRecs = _dbContext.ServiceProviderServices.Where(spsRec=>spsRec.ServiceProvider.ServiceProviderId==serviceProviderDto.ServiceProviderId).Select(spsRec => new ServiceProviderServices { Service=spsRec.Service, ServiceProvider=spsRec.ServiceProvider}).ToList();
+                var spsRecsServiceIds = spsRecs.Select(spsRec => spsRec.Service.ServiceId);
+                var newServiceIds = serviceProviderDto.Services.Select(sv => sv.ServiceId);
+                var unionServiceIds = spsRecsServiceIds.Union(newServiceIds);
+                var intersectionServiceIds = spsRecsServiceIds.Intersect(newServiceIds).ToList();
+                var removedServiceIds = unionServiceIds.Where(svId => !newServiceIds.Contains(svId)).ToList();
+                var addedServiceIds = newServiceIds.Where(svId => !intersectionServiceIds.Contains(svId) && !removedServiceIds.Contains(svId)).ToList();
+                removedServiceIds.ForEach(svId => {
+                    var removed = _dbContext.ServiceProviderServices.FirstOrDefault(spsRec => spsRec.Service.ServiceId == svId);
+                    _dbContext.Remove(removed);
+                });
+
+                addedServiceIds.ForEach(svId =>
+                {
+                    var sourceService = _dbContext.Services.FirstOrDefault(sv => sv.ServiceId == svId);
+                    if (sourceService != null)
+                    {
+                        _dbContext.ServiceProviderServices.Add(new ServiceProviderServices
+                        {
+                            Service = sourceService,
+                            ServiceProvider = serviceProvider
+                        });
+                    }
+                });
+
+                if (serviceProviderDto.ImageFile != null)
+                {
+                    var fileName = $"serviceProvider_{serviceProvider.ServiceProviderId}{Path.GetExtension(serviceProviderDto.ImageFile.FileName)}";
+                    var filePath = Path.Combine("./wwwroot/images", fileName);
+                    using(var fs = new FileStream(filePath,FileMode.Create))
+                    {
+                       await serviceProviderDto.ImageFile.CopyToAsync(fs);
+                       serviceProvider.ImageUrl = $"images/{fileName}";
+                    }
+                }
+            }
+           
+            var affected =  await _dbContext.SaveChangesAsync();
+            return affected > 0 ? _mapper.Map<ServiceProviderDto>(serviceProvider) : null;
         }
     }
 }

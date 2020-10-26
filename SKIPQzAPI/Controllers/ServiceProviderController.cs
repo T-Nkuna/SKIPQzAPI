@@ -52,9 +52,22 @@ namespace SKIPQzAPI.Controllers
         }
 
         // PUT api/<ServiceProviderController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPut]
+        public async Task<ServiceProviderDto> Put()
         {
+            
+            var form = Request.Form;
+            int serviceProviderId;
+            int.TryParse(form["serviceProviderId"], out serviceProviderId);
+            var sProviderDto = new ServiceProviderDto { 
+                Email = form["email"],
+                ServiceProviderId = serviceProviderId,
+                ImageFile = form.Files["imageFile"],
+                ScheduledWorkDays = JsonConvert.DeserializeObject<List<WorkingDayDto>>(form["scheduledWorkDays"]),
+                Name = form["name"],
+                Services = JsonConvert.DeserializeObject<List<ServiceDto>>(form["services"])
+            };
+            return await _serviceProviderService.UpdateServiceProvider(sProviderDto);
         }
 
         // DELETE api/<ServiceProviderController>/5

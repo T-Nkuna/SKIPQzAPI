@@ -15,7 +15,17 @@ namespace SKIPQzAPI.Models.Time
             StartTime = startTime;
             EndTime = endTime;
         }
-     
+
+        public TimeComponentInterval(TimeComponent startTime, TimeComponent endTime,int workingDayId):this(startTime,endTime)
+        {
+            WorkingDayId = workingDayId;
+        }
+
+        public TimeComponentInterval(TimeComponent startTime, TimeComponent endTime, int workingDayId,int timeComponentIntervalId) : this(startTime, endTime,workingDayId)
+        {
+            TimeComponentIntervalId = timeComponentIntervalId;
+        }
+
         public int WorkingDayId { get; set; }
         public int TimeComponentIntervalId{get;set;}
 

@@ -16,6 +16,11 @@ namespace SKIPQzAPI.Dtos
         {
             get;set;
         }
+
+        public int WorkingDayId
+        {
+            get;set;
+        }
     }
 
     public class TimeInterval
@@ -27,6 +32,11 @@ namespace SKIPQzAPI.Dtos
         }
 
         public string EndTimeSlot
+        {
+            get;set;
+        }
+
+        public int TimeIntervalId
         {
             get;set;
         }

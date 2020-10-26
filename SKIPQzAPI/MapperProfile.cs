@@ -60,8 +60,11 @@ namespace SKIPQzAPI
                 Shifts = wD.Shifts.Select(shift => new TimeInterval
                 {
                     EndTimeSlot = shift.EndTime.ToString(),
-                    StartTimeSlot = shift.StartTime.ToString()
-                }).ToList()
+                    StartTimeSlot = shift.StartTime.ToString(),
+                    TimeIntervalId = shift.TimeComponentIntervalId
+                }).ToList(),
+                WorkingDayId = wD.WorkingDayId
+               
             }).ToList();
             sPDto.Services = _dbContext.ServiceProviderServices
                             .Where(sps => sps.ServiceProvider.ServiceProviderId == source.ServiceProviderId)
@@ -82,7 +85,7 @@ namespace SKIPQzAPI
         {
             var sProvider = new ServiceProvider();
             sProvider.Name = sourceMember.Name;
-            sProvider.WorkingDays = sourceMember.ScheduledWorkDays.Select(sD => new WorkingDay { WeekDay = sD.DayOfWeek, Shifts = sD.Shifts.Select(tI => new TimeComponentInterval(new TimeComponent(tI.StartTimeSlot), new TimeComponent(tI.EndTimeSlot))).ToList() }).ToList();
+            sProvider.WorkingDays = sourceMember.ScheduledWorkDays.Select(sD => new WorkingDay {WorkingDayId=sD.WorkingDayId, WeekDay = sD.DayOfWeek, Shifts = sD.Shifts.Select(tI => new TimeComponentInterval(new TimeComponent(tI.StartTimeSlot), new TimeComponent(tI.EndTimeSlot),sD.WorkingDayId,tI.TimeIntervalId)).ToList() }).ToList();
             sProvider.ServiceProviderId = sourceMember.ServiceProviderId;
             sProvider.User = _dbContext.Users.FirstOrDefault(user => user.Email == sourceMember.Email);
             sProvider.ImageUrl = sourceMember.ImageUrl;
