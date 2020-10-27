@@ -46,6 +46,7 @@ namespace SKIPQzAPI
             services.AddAutoMapper(typeof(Startup));
             services.AddScoped<ServiceProviderService>();
             services.AddScoped<ServiceService>();
+            services.AddScoped<BookingService>();
             services.AddCors(options =>
             {
                 options.AddPolicy("CrossOriginAccess", config =>

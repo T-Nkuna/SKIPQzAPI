@@ -30,11 +30,64 @@ namespace SKIPQzAPI
 
             CreateMap<WorkingDayDto, WorkingDay>().ConvertUsing(typeof(WorkingDayDtoConvertor));
             CreateMap<WorkingDay, WorkingDayDto>().ConvertUsing(typeof(WorkingDayConvertor));
-           
+            CreateMap<BookingDto, Booking>().ConvertUsing(typeof(BookingDtoConvertor));
+            CreateMap<Booking, BookingDto>().ConvertUsing(typeof(BookingConvertor));
             
         }
     }
 
+    public class BookingConvertor : ITypeConverter<Booking, BookingDto>
+    {
+        private readonly ApplicationDbContext _dbContext;
+        public BookingConvertor(ApplicationDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+        BookingDto ITypeConverter<Booking, BookingDto>.Convert(Booking source, BookingDto destination, ResolutionContext context)
+        {
+            BookingDto newBookingDto = new BookingDto
+            {
+                BookedDate = $"{source.BookedDate.Year}-{source.BookedDate.Month}-{source.BookedDate.Day}",
+                BookingId = source.BookingId,
+                Service = context.Mapper.Map<ServiceDto>(_dbContext.Services.Where(sv=>sv.ServiceId==source.ServiceId).FirstOrDefault()),
+                ServiceProvider = context.Mapper.Map<ServiceProviderDto>(_dbContext.ServiceProviders.FirstOrDefault(sp=>sp.ServiceProviderId==source.ServiceProviderId)),
+                EndTimeSlot = source.BookedTimeInterval.EndTime.ToString(),
+                StartTimeSlot = source.BookedTimeInterval.StartTime.ToString()
+            };
+
+            return newBookingDto;
+        }
+    }
+
+    public class BookingDtoConvertor : ITypeConverter<BookingDto, Booking>
+    {
+        private readonly ApplicationDbContext _dbContext;
+        public BookingDtoConvertor(ApplicationDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+        Booking ITypeConverter<BookingDto, Booking>.Convert(BookingDto source, Booking destination, ResolutionContext context)
+        {
+            var dateParts = source.BookedDate.Split('-').Select(part => int.Parse(part.Trim()));
+            var bookedDate = new DateTime(dateParts.ElementAt(0), dateParts.ElementAt(1) + 1, dateParts.ElementAt(2));
+
+            var workDay = _dbContext.WorkingDays.FirstOrDefault(wd => wd.ServiceProviderId == source.ServiceProvider.ServiceProviderId && wd.WeekDay == bookedDate.DayOfWeek);
+            Booking newBooking = new Booking
+            {
+                BookedDate = bookedDate ,
+                BookingId = source.BookingId,
+                ServiceId = source.Service.ServiceId,
+                ServiceProviderId = source.ServiceProvider.ServiceProviderId,
+                BookedTimeInterval =  new TimeComponentInterval {
+                    StartTime = new TimeComponent(source.StartTimeSlot),
+                    EndTime = new TimeComponent(source.EndTimeSlot),
+                    WorkingDayId = workDay!=null?workDay.WorkingDayId:0
+                }
+            };
+
+            return newBooking;
+        }
+    }
     public class ServiceProviderConvertor : ITypeConverter<ServiceProvider, ServiceProviderDto>
     {
         private readonly ApplicationDbContext _dbContext;

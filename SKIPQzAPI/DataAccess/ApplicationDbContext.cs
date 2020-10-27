@@ -17,6 +17,8 @@ namespace SKIPQzAPI.DataAccess
         public DbSet<TimeComponentInterval> TimeComponentIntervals { get; set; }
         public DbSet<ServiceProviderServices> ServiceProviderServices{get;set;}
         public DbSet<ServiceProvider> ServiceProviders { get; set; }
+
+        public DbSet<Booking> Bookings { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
     }
 }

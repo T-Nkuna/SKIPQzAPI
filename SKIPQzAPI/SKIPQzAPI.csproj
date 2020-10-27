@@ -24,6 +24,8 @@
     <Compile Remove="Migrations\20201004142101_addedTimeManagementTables.Designer.cs" />
     <Compile Remove="Migrations\20201004143116_addedTimeManagementTables.cs" />
     <Compile Remove="Migrations\20201004143116_addedTimeManagementTables.Designer.cs" />
+    <Compile Remove="Migrations\20201027103432_addedForeignKeyConstraintsToBookingsTable.cs" />
+    <Compile Remove="Migrations\20201027103432_addedForeignKeyConstraintsToBookingsTable.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

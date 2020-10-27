@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using SKIPQzAPI.DataAccess;
 using SKIPQzAPI.Dtos;
 using SKIPQzAPI.Models;
@@ -19,16 +20,20 @@ namespace SKIPQzAPI.Services
         private readonly ApplicationDbContext _dbContext;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IConfiguration _configuration;
         public ServiceProviderService(IMapper mapper,
             ApplicationDbContext dbContext,
             UserManager<IdentityUser> userManager,
-            RoleManager<IdentityRole> roleManager
+            RoleManager<IdentityRole> roleManager,
+            IConfiguration configuration
+
             )
         {
             _mapper = mapper;
             _dbContext = dbContext;
             _roleManager = roleManager;
             _userManager = userManager;
+            _configuration = configuration;
         }
         public ServiceProviderDto GetServiceProvider(int serviceProviderId)
         {
@@ -144,7 +149,19 @@ namespace SKIPQzAPI.Services
                 var matchedStr = pattern.Match(dateString).Value;
                 var strDigits = matchedStr.Split('-').Select(digitStr => Convert.ToInt32(digitStr)).ToList();
                 var bookedDate = new DateTime(strDigits[0], strDigits[1]+1, strDigits[2]);
-                return GetServiceTimeSlots(serviceProviderId, serviceId, bookedDate.DayOfWeek);
+                var bookedTimeIntervals = _dbContext.Bookings.Where(booking => booking.ServiceProviderId == serviceProviderId && booking.BookedDate.Date == bookedDate.Date).Select(bk=>new TimeComponentInterval { EndTime = bk.BookedTimeInterval.EndTime,StartTime=bk.BookedTimeInterval.StartTime,TimeComponentIntervalId=bk.BookedTimeInterval.TimeComponentIntervalId,WorkingDayId=bk.BookedTimeInterval.WorkingDayId}).ToList();
+                var availableSlots = new List<string>();
+                foreach(var slot in GetServiceTimeSlots(serviceProviderId, serviceId, bookedDate.DayOfWeek))
+                {
+                    var tComponet = new TimeComponent(slot);
+
+                    var targetIntervals = bookedTimeIntervals.Where(tI => tComponet.ToMinutes() >= tI.StartTime.ToMinutes() && tComponet.ToMinutes() < tI.EndTime.ToMinutes());
+                    if (targetIntervals.Count() == 0)
+                    {
+                        availableSlots.Add(slot);
+                    }
+                }
+               return availableSlots;
             }
 
         }
@@ -159,9 +176,9 @@ namespace SKIPQzAPI.Services
             
             if(service!=null && serviceProvider!=null && targetWorkingDay!=null && targetWorkingDay.Shifts.Count()>0)
             {
-               
-               
-                return service.Duration==0? new List<string>():TimeComponentInterval.GenerateTimeComponents(targetWorkingDay.Shifts[0].StartTime.Hour, targetWorkingDay.Shifts[0].EndTime.Hour, service.Duration).Select(tc=>tc.ToString()).ToList();
+
+                double minuteInterval = _configuration.GetSection("TimeSlotIntervalLength").Get<double>();
+                return service.Duration==0? new List<string>():TimeComponentInterval.GenerateTimeComponents(targetWorkingDay.Shifts[0].StartTime.Hour, targetWorkingDay.Shifts[0].EndTime.Hour,minuteInterval ).Select(tc=>tc.ToString()).ToList();
             }
             else
             {
