@@ -96,6 +96,12 @@ namespace SKIPQzAPI.Services
             if (removed != null)
             {
                 returned = _mapper.Map<ServiceDto>(removed);
+                var spsRecs = _dbContext.ServiceProviderServices.Where(spsRec => spsRec.Service.ServiceId == removed.ServiceId).ToList();
+                spsRecs.ForEach(spsRec => _dbContext.Remove(spsRec));
+                await _dbContext.SaveChangesAsync();
+                var svExtrasRec = _dbContext.ServiceExtras.Where(svRec => svRec.Service.ServiceId == removed.ServiceId).ToList();
+                svExtrasRec.ForEach(svRec => _dbContext.Remove(svRec));
+                await _dbContext.SaveChangesAsync();
                 _dbContext.Remove(removed);
                 removedSuccessfully = await _dbContext.SaveChangesAsync();
             }
