@@ -32,7 +32,8 @@ namespace SKIPQzAPI
             CreateMap<WorkingDay, WorkingDayDto>().ConvertUsing(typeof(WorkingDayConvertor));
             CreateMap<BookingDto, Booking>().ConvertUsing(typeof(BookingDtoConvertor));
             CreateMap<Booking, BookingDto>().ConvertUsing(typeof(BookingConvertor));
-            
+            CreateMap<Extra, ExtraDto>();
+            CreateMap<ExtraDto, Extra>();
         }
     }
 
