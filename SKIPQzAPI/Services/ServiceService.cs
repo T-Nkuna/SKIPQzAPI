@@ -37,6 +37,24 @@ namespace SKIPQzAPI.Services
                 affected = await _dbContext.SaveChangesAsync();
             }
 
+            var currentServiceExtraIds = _dbContext.ServiceExtras.Where(svExtra => svExtra.Service.ServiceId == service.ServiceId).Select(svEx=>svEx.Extra.ExtraId).ToList();
+            var unionExtraIds = serviceDTO.ExtraIds.Union(currentServiceExtraIds);
+            var intersectionExtraIds = serviceDTO.ExtraIds.Intersect(currentServiceExtraIds);
+
+            var removedServiceExtra = unionExtraIds
+                .Where(exId => !serviceDTO.ExtraIds.Contains(exId))
+                .Select(exId=>_dbContext.ServiceExtras.FirstOrDefault(svExtr=>svExtr.Extra.ExtraId==exId))
+                .Where(svExtra=>svExtra!=null);
+
+            var addedServiceExtras = serviceDTO.ExtraIds
+                .Where(exId => !intersectionExtraIds.Contains(exId))
+                .Select(exId=>_dbContext.Extras.FirstOrDefault(ex=>ex.ExtraId==exId))
+                .Where(ex=>ex!=null)
+                .Select(ex=>new ServiceExtras { Extra=ex,Service = service});
+             _dbContext.ServiceExtras.RemoveRange(removedServiceExtra);
+            await _dbContext.ServiceExtras.AddRangeAsync(addedServiceExtras);
+
+            await _dbContext.SaveChangesAsync();
             return affected > 0 ? _mapper.Map<ServiceDto>(service) : null;
         }
         public async Task<ServiceDto> AddService(ServiceDto service)
@@ -59,9 +77,22 @@ namespace SKIPQzAPI.Services
                         await service.ImageFile.CopyToAsync(stream);
 
                     }
+                   
                     affected = await _dbContext.SaveChangesAsync();
+
                 }
                
+                if (lastAddedService != null)
+                {
+                    var serviceExtras = service.ExtraIds
+                       .Select(extraId => _dbContext.Extras.FirstOrDefault(extra => extra.ExtraId == extraId))
+                       .Where(extra => extra != null)
+                       .Select(extra => new ServiceExtras { Extra = extra, Service = lastAddedService });
+
+                    await _dbContext.AddRangeAsync(serviceExtras);
+                    await _dbContext.SaveChangesAsync();
+                }
+
 
                 return affected > 0 ? _mapper.Map<ServiceDto>(lastAddedService) : null;
             }

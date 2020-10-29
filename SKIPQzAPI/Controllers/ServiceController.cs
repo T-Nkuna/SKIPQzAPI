@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using SKIPQzAPI.Dtos;
 using SKIPQzAPI.Services;
 
@@ -45,12 +46,12 @@ namespace SKIPQzAPI.Controllers
             service.Duration = Convert.ToDouble(value["duration"]);
             service.Name = value["name"];
             service.ImageFile = value.Files["imageFile"];
-            
+            service.ExtraIds = value.ContainsKey("extraIds") ? JsonConvert.DeserializeObject<List<int>>(value["extraIds"]) : new List<int>();
             return  await _servicesService.AddService(service);
         }
 
         // PUT api/<ServiceController>/5
-        [HttpPut("{id}")]
+        [HttpPut]
         public async Task<ServiceDto> Put()
         {
             IFormCollection form = Request.Form;
@@ -60,7 +61,9 @@ namespace SKIPQzAPI.Controllers
                 Duration = Convert.ToDouble(form["duration"]),
                 ImageFile = form.Files["imageFile"],
                 Name = form["name"],
-                ServiceId = Convert.ToInt32(form["serviceId"])
+                ServiceId = Convert.ToInt32(form["serviceId"]),
+                ExtraIds = form.ContainsKey("extraIds") ? JsonConvert.DeserializeObject<List<int>>(form["extraIds"]) : new List<int>()
+
             };
             return await _servicesService.UpdateService(serviceDTO);
         }

@@ -26,8 +26,7 @@ namespace SKIPQzAPI
             CreateMap<ServiceProviderDto, ServiceProvider>().ConvertUsing(typeof(ServiceProviderDtoConvertor));
 
             CreateMap<ServiceDto, Service>();
-            CreateMap<Service, ServiceDto>();
-
+            CreateMap<Service, ServiceDto>().ConvertUsing(typeof(ServiceConvertor));
             CreateMap<WorkingDayDto, WorkingDay>().ConvertUsing(typeof(WorkingDayDtoConvertor));
             CreateMap<WorkingDay, WorkingDayDto>().ConvertUsing(typeof(WorkingDayConvertor));
             CreateMap<BookingDto, Booking>().ConvertUsing(typeof(BookingDtoConvertor));
@@ -37,6 +36,30 @@ namespace SKIPQzAPI
         }
     }
 
+
+    public class ServiceConvertor : ITypeConverter<Service, ServiceDto>
+    {
+        private readonly ApplicationDbContext _dbContext;
+
+        public ServiceConvertor(ApplicationDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        ServiceDto ITypeConverter<Service, ServiceDto>.Convert(Service source, ServiceDto destination, ResolutionContext context)
+        {
+            return( new ServiceDto {
+                Cost = source.Cost,
+                Duration = source.Duration,
+                ImageUrl = source.ImageUrl,
+                Name = source.Name,
+                ExtraIds = _dbContext.ServiceExtras.Where(svExtra => svExtra.Service.ServiceId == source.ServiceId).Select(sv => sv.Extra.ExtraId).ToList(),
+                ServiceId = source.ServiceId
+                
+            });
+        }
+
+    }
     public class BookingConvertor : ITypeConverter<Booking, BookingDto>
     {
         private readonly ApplicationDbContext _dbContext;

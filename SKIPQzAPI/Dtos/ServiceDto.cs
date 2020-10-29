@@ -20,5 +20,7 @@ namespace SKIPQzAPI.Dtos
         public IFormFile ImageFile { get; set; }
 
         public string ImageUrl { get; set; } = "";
+
+        public List<int> ExtraIds { get; set; }  
     }
 }
