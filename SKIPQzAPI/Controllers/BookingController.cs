@@ -21,25 +21,18 @@ namespace SKIPQzAPI.Controllers
         {
             _bookingService = bookingService;
         }
-        // GET: api/<BookingController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
 
         // GET api/<BookingController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpGet]
+        public  List<BookingDto> Get(int pageSize,int pageIndex)
         {
-            return "value";
+            return _bookingService.GetBookings(pageIndex,pageSize);
         }
 
         // POST api/<BookingController>
         [HttpPost]
         public async Task<BookingDto> Post([FromBody] BookingDto value)
         {
-            value.EndTimeSlot = new TimeComponent(value.StartTimeSlot).AddMinutes(value.Service.Duration).ToString();
             return await _bookingService.AddBooking(value);
         }
 
@@ -51,8 +44,9 @@ namespace SKIPQzAPI.Controllers
 
         // DELETE api/<BookingController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<BookingDto> Delete(int id)
         {
+            return await _bookingService.DeleteBooking(id);
         }
     }
 }

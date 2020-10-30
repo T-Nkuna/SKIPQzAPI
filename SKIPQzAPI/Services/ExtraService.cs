@@ -57,5 +57,14 @@ namespace SKIPQzAPI.Services
                 .Take(pageSize).ToList()
                 .Select(extra => _mapper.Map<ExtraDto>(extra));
         }
+
+        public IEnumerable<ExtraDto> GetServiceExtras(int serviceId)
+        {
+            return _applicationDbContext.ServiceExtras
+                .Where(sv => sv.Service.ServiceId == serviceId)
+                .Select(ex => ex.Extra)
+                .ToList()
+                .Select(ex => _mapper.Map<ExtraDto>(ex));
+        }
     }
 }

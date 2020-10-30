@@ -69,14 +69,16 @@ namespace SKIPQzAPI
         }
         BookingDto ITypeConverter<Booking, BookingDto>.Convert(Booking source, BookingDto destination, ResolutionContext context)
         {
+            TimeComponentInterval bookedTimeInterval = _dbContext.Bookings.Where(bk => bk.BookingId == source.BookingId).Select(bk => new TimeComponentInterval { EndTime=bk.BookedTimeInterval.EndTime,StartTime=bk.BookedTimeInterval.StartTime}).FirstOrDefault();
             BookingDto newBookingDto = new BookingDto
             {
-                BookedDate = $"{source.BookedDate.Year}-{source.BookedDate.Month}-{source.BookedDate.Day}",
+                BookedDate = $"{source.BookedDate.Year}-{source.BookedDate.Month-1}-{source.BookedDate.Day}",
                 BookingId = source.BookingId,
-                Service = context.Mapper.Map<ServiceDto>(_dbContext.Services.Where(sv=>sv.ServiceId==source.ServiceId).FirstOrDefault()),
-                ServiceProvider = context.Mapper.Map<ServiceProviderDto>(_dbContext.ServiceProviders.FirstOrDefault(sp=>sp.ServiceProviderId==source.ServiceProviderId)),
-                EndTimeSlot = source.BookedTimeInterval.EndTime.ToString(),
-                StartTimeSlot = source.BookedTimeInterval.StartTime.ToString()
+                ServiceId = source.ServiceId,
+                ServiceProviderId = source.ServiceProviderId,
+                EndTimeSlot = bookedTimeInterval?.EndTime.ToString()??"",
+                StartTimeSlot = bookedTimeInterval?.StartTime.ToString()??"",
+                ExtraIds = _dbContext.Bookings.Where(bk => bk.BookingId == source.BookingId).Select(bk => new { Extras = bk.Extras }).FirstOrDefault()?.Extras.Select(ex => ex.ExtraId).ToList() ?? new List<int>()
             };
 
             return newBookingDto;
@@ -95,18 +97,19 @@ namespace SKIPQzAPI
             var dateParts = source.BookedDate.Split('-').Select(part => int.Parse(part.Trim()));
             var bookedDate = new DateTime(dateParts.ElementAt(0), dateParts.ElementAt(1) + 1, dateParts.ElementAt(2));
 
-            var workDay = _dbContext.WorkingDays.FirstOrDefault(wd => wd.ServiceProviderId == source.ServiceProvider.ServiceProviderId && wd.WeekDay == bookedDate.DayOfWeek);
+            var workDay = _dbContext.WorkingDays.FirstOrDefault(wd => wd.ServiceProviderId == source.ServiceProviderId && wd.WeekDay == bookedDate.DayOfWeek);
             Booking newBooking = new Booking
             {
                 BookedDate = bookedDate ,
                 BookingId = source.BookingId,
-                ServiceId = source.Service.ServiceId,
-                ServiceProviderId = source.ServiceProvider.ServiceProviderId,
+                ServiceId = source.ServiceId,
+                ServiceProviderId = source.ServiceProviderId,
                 BookedTimeInterval =  new TimeComponentInterval {
                     StartTime = new TimeComponent(source.StartTimeSlot),
                     EndTime = new TimeComponent(source.EndTimeSlot),
                     WorkingDayId = workDay!=null?workDay.WorkingDayId:0
-                }
+                },
+                Extras = _dbContext.Bookings.Where(bk=>bk.BookingId==source.BookingId).Select(bk=>bk.Extras).FirstOrDefault()??source.ExtraIds?.Select(exId=>_dbContext.Extras.FirstOrDefault(ex=>ex.ExtraId==exId)).ToList().Where(ex=>ex!=null).ToList()
             };
 
             return newBooking;

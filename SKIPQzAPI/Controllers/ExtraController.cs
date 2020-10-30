@@ -29,10 +29,10 @@ namespace SKIPQzAPI.Controllers
         }
 
         // GET api/<ExtraController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpGet("serviceExtras/{serviceId}")]
+        public IEnumerable<ExtraDto> Get(int serviceId)
         {
-            return "value";
+            return _extraService.GetServiceExtras(serviceId);
         }
 
         // POST api/<ExtraController>

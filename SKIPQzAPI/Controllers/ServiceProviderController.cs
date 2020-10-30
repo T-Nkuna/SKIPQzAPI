@@ -80,8 +80,16 @@ namespace SKIPQzAPI.Controllers
         [HttpGet("{id}/services/{serviceId}/{dateString}")]
         public List<string> GetServiceProviderTimeSlots(int id,int serviceId,string dateString)
         {
+
+            try
+            {
+                return _serviceProviderService.GetServiceTimeSlots(id, serviceId, dateString);
+            }
+            catch(Exception ex)
+            {
+                return new List<string> { ex.Message, ex.StackTrace };
+            }
             
-            return _serviceProviderService.GetServiceTimeSlots(id, serviceId,dateString);
         }
     }
 }

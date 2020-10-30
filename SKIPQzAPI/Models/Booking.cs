@@ -18,5 +18,7 @@ namespace SKIPQzAPI.Models
         public DateTime BookedDate { get; set; }
 
         public TimeComponentInterval BookedTimeInterval { get; set; }
+
+        public List<Extra> Extras { get; set; }
     }
 }
