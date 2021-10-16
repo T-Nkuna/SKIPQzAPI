@@ -33,6 +33,8 @@ namespace SKIPQzAPI
             CreateMap<Booking, BookingDto>().ConvertUsing(typeof(BookingConvertor));
             CreateMap<Extra, ExtraDto>();
             CreateMap<ExtraDto, Extra>();
+            CreateMap<ClientInfoDTO,ClientInfo>().ReverseMap();
+            CreateMap<ClientInfoDTO, ClientInfoCreateDTO>().ReverseMap();
         }
     }
 
@@ -60,6 +62,8 @@ namespace SKIPQzAPI
         }
 
     }
+
+  
     public class BookingConvertor : ITypeConverter<Booking, BookingDto>
     {
         private readonly ApplicationDbContext _dbContext;
@@ -126,10 +130,10 @@ namespace SKIPQzAPI
         public ServiceProviderDto Convert(ServiceProvider source, ServiceProviderDto destination, ResolutionContext context)
         {
             var sPDto = new ServiceProviderDto();
-            var spUser = _dbContext.ServiceProviders.Where(
+            var spUser = _dbContext.ServiceProviders.FirstOrDefault(
                 sp => sp.ServiceProviderId == source.ServiceProviderId
-                 ).Select(sp => sp.User).ToList();
-            var email =  spUser.Count() > 0 ? spUser.ElementAt(0).Email : "";
+                 );
+            var email =  spUser?.User?.Email??"";
             sPDto.Email = email;
 
             sPDto.Name = source.Name;

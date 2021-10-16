@@ -62,8 +62,8 @@ namespace SKIPQzAPI.Controllers
                 ImageFile = form.Files["imageFile"],
                 Name = form["name"],
                 ServiceId = Convert.ToInt32(form["serviceId"]),
-                ExtraIds = form.ContainsKey("extraIds") ? JsonConvert.DeserializeObject<List<int>>(form["extraIds"]) : new List<int>()
-
+                ExtraIds = form.ContainsKey("extraIds") ? JsonConvert.DeserializeObject<List<int>>(form["extraIds"]) : new List<int>(),
+                ImageUrl = form["imageUrl"]
             };
             return await _servicesService.UpdateService(serviceDTO);
         }

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using SKIPQzAPI.Common.Constants;
 using SKIPQzAPI.DataAccess;
 using SKIPQzAPI.Dtos;
 using SKIPQzAPI.Models;
@@ -66,7 +67,7 @@ namespace SKIPQzAPI.Services
         public async Task<ServiceProviderDto> AddServiceProvider(ServiceProviderDto serviceProvider)
         {
             //create service provider role if it doesn't exist
-            var spRoleName = "ServiceProvider";
+            var spRoleName = RoleName.ServiceProvider;
             var spRole = await _roleManager.FindByNameAsync(spRoleName);
             if (spRole==null)
             {

@@ -65,7 +65,8 @@ namespace SKIPQzAPI.Controllers
                 ImageFile = form.Files["imageFile"],
                 ScheduledWorkDays = JsonConvert.DeserializeObject<List<WorkingDayDto>>(form["scheduledWorkDays"]),
                 Name = form["name"],
-                Services = JsonConvert.DeserializeObject<List<ServiceDto>>(form["services"])
+                Services = JsonConvert.DeserializeObject<List<ServiceDto>>(form["services"]),
+                ImageUrl = form["imageUrl"]
             };
             return await _serviceProviderService.UpdateServiceProvider(sProviderDto);
         }

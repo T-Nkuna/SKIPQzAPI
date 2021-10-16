@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using SKIPQzAPI.Dtos;
@@ -16,10 +17,13 @@ namespace SKIPQzAPI.Controllers
     public class BookingController : Controller
     {
         private readonly BookingService _bookingService;
+        private readonly HttpClient _httpClient;
 
-        public BookingController(BookingService bookingService)
+        public BookingController(BookingService bookingService,IHttpClientFactory httpClientFactory)
         {
             _bookingService = bookingService;
+            _httpClient = httpClientFactory.CreateClient();
+           
         }
 
         // GET api/<BookingController>/5

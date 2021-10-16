@@ -17,6 +17,7 @@ using AutoMapper;
 using SKIPQzAPI.Services;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
+using Microsoft.Net.Http.Headers;
 
 namespace SKIPQzAPI
 {
@@ -37,9 +38,16 @@ namespace SKIPQzAPI
             {
                 config.UseSqlServer(Configuration.GetConnectionString("Default"));
             });
-            
+            services.AddHttpClient();
             services
-                .AddIdentity<IdentityUser, IdentityRole>()
+                .AddIdentity<IdentityUser, IdentityRole>(config=> {
+                    config.Password.RequiredLength = 4;
+                    config.Password.RequiredUniqueChars = 0;
+                    config.Password.RequireDigit = false;
+                    config.Password.RequireUppercase = false;
+                    config.Password.RequireNonAlphanumeric = false;
+                    config.Password.RequireLowercase = false;
+                })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
@@ -48,13 +56,15 @@ namespace SKIPQzAPI
             services.AddScoped<ServiceService>();
             services.AddScoped<BookingService>();
             services.AddScoped<ExtraService>();
+            services.AddScoped<AccountService>();
             services.AddCors(options =>
             {
                 options.AddPolicy("CrossOriginAccess", config =>
                 {
-                    config.AllowAnyOrigin()
-                    .AllowAnyMethod()
+                    config.AllowAnyMethod()
+                    .AllowAnyOrigin()
                     .AllowAnyHeader();
+                   
                 });
             });
                 
@@ -81,9 +91,9 @@ namespace SKIPQzAPI
                 EnableDirectoryBrowsing = true
             });
             app.UseRouting();
-
-            app.UseAuthorization();
             app.UseCors("CrossOriginAccess");
+            app.UseAuthorization();
+           
             
             app.UseEndpoints(endpoints =>
             {
