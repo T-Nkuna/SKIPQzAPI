@@ -37,7 +37,7 @@ namespace SKIPQzAPI.Controllers
 
         // POST api/<AccountController>
         [HttpPost]
-        public async Task<SysResult<bool>> Post([FromBody] ClientInfoCreateDTO value) => await _accountService.CreateAccount(value);
+        public async Task<SysResult<bool>> Post([FromForm] ClientInfoCreateDTO value) => await _accountService.CreateAccount(value);
 
         // PUT api/<AccountController>/5
         [HttpPut("{id}")]
@@ -58,5 +58,6 @@ namespace SKIPQzAPI.Controllers
           
             return await _accountService.SignIn(userName,password);
         }
+        
     }
 }
