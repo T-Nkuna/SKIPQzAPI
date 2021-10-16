@@ -41,11 +41,11 @@ namespace SKIPQzAPI.Services
             }
             else
             {
-                throw new ArgumentException("Invalid Credentials");
+               return false;
             }
         }
 
-        public async Task<bool> CreateAccount(ClientInfoCreateDTO accountDetails)
+        public async Task<SysResult<bool>> CreateAccount(ClientInfoCreateDTO accountDetails)
         {
 
             var existingUser = await _userManager.FindByNameAsync(accountDetails.Email);
@@ -54,7 +54,7 @@ namespace SKIPQzAPI.Services
             var passwordMatch = accountDetails.Password == accountDetails.ConfirmPassword;
             if (!passwordMatch)
             {
-                throw new ArgumentException("Password Mismatch");
+                return new SysResult<bool> { Data = false, Message = "Password Mismatch",Ok=false };
             }
             if (!accountExists)
             {
@@ -71,20 +71,21 @@ namespace SKIPQzAPI.Services
                         var roleCreateResult = await _roleManager.CreateAsync(new IdentityRole { Name = RoleName.Client });
                         if (!roleCreateResult.Succeeded)
                         {
-                            throw new ArgumentException($"Failed To Create Role: {roleCreateResult.Errors.ElementAt(0)?.Description}");
+                            return new SysResult<bool> { Data = false, Ok = false, Message = $"Failed To Create Role: {roleCreateResult.Errors.ElementAt(0)?.Description}" };
+                          
                         }
                     }
                     var addedToRoleResult = (await _userManager.AddToRoleAsync(newCreatedUser, RoleName.Client));
-                    return addedToRoleResult.Succeeded;
+                    return new SysResult<bool> { Data = addedToRoleResult.Succeeded,Ok=addedToRoleResult.Succeeded,Message="Account Created"};
                 }
                 else
                 {
-                    throw new ArgumentException($"Failed To Create User: {createResult.Errors.ElementAt(0)?.Description}");
+                    return new SysResult<bool> { Message = $"Failed To Create User: {createResult.Errors.ElementAt(0)?.Description}",Data=false,Ok=false};
                 }
             }
             else
             {
-                throw new ArgumentException($"Account {accountDetails.Email} Already Exists");
+               return new SysResult<bool> { Message = ($"Account {accountDetails.Email} Already Exists"), Data = false, Ok = false };
             }
 
         }

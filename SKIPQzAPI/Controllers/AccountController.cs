@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SKIPQzAPI.Dtos;
+using SKIPQzAPI.Models;
 using SKIPQzAPI.Services;
 using System;
 using System.Collections.Generic;
@@ -36,7 +37,7 @@ namespace SKIPQzAPI.Controllers
 
         // POST api/<AccountController>
         [HttpPost]
-        public async Task<bool> Post([FromBody] ClientInfoCreateDTO value) => await _accountService.CreateAccount(value);
+        public async Task<SysResult<bool>> Post([FromBody] ClientInfoCreateDTO value) => await _accountService.CreateAccount(value);
 
         // PUT api/<AccountController>/5
         [HttpPut("{id}")]
