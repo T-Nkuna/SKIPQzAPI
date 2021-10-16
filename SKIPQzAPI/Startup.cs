@@ -36,7 +36,7 @@ namespace SKIPQzAPI
             services.AddControllersWithViews();
             services.AddDbContext<ApplicationDbContext>(config =>
             {
-                config.UseSqlServer(Configuration.GetConnectionString("Default"));
+                config.UseSqlServer(Configuration.GetConnectionString("Production"));
             });
             services.AddHttpClient();
             services
