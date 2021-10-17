@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using NETCore.MailKit.Core;
 using SKIPQzAPI.Common.Constants;
 using SKIPQzAPI.DataAccess;
 using SKIPQzAPI.Dtos;
@@ -19,15 +21,63 @@ namespace SKIPQzAPI.Services
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly SignInManager<IdentityUser> _singInManager;
-        public AccountService(IMapper mapper, ApplicationDbContext dbContext, UserManager<IdentityUser> userManager,RoleManager<IdentityRole> roleManager,SignInManager<IdentityUser> signInManager)
+        private readonly IEmailService _mailService;
+        public AccountService(IMapper mapper, ApplicationDbContext dbContext, 
+            UserManager<IdentityUser> userManager,RoleManager<IdentityRole> roleManager,
+            SignInManager<IdentityUser> signInManager,
+            IEmailService mailService)
         {
             _mapper = mapper;
             _dbContext = dbContext;
             _userManager = userManager;
             _roleManager = roleManager;
             _singInManager = signInManager;
+            _mailService = mailService;
         }
 
+
+        public async Task< (string code,string userID,string email)> ResetPasswordLinkParams(string userName)
+        {
+            var targetUser =  await _userManager.FindByNameAsync(userName);
+            if (targetUser != null)
+            {
+                var code = await _userManager.GeneratePasswordResetTokenAsync(targetUser);
+                var userId = targetUser.Id;
+                return (code, userId,targetUser.Email);
+            }
+            else
+            {
+                return ("","","");
+            }
+        }
+
+        public async Task MailResetPasswordLink(string link,string mailTo)
+        {
+            await _mailService.SendAsync(mailTo, "SkipQz Reset Password", $"Click <a href=\"{link}\">Here</a> To Reset Password", true);
+        }
+
+        public async Task<SysResult<bool>> ResetPassword(string userid,string code,string newPassword)
+        {
+            var user = await _userManager.FindByIdAsync(userid);
+            if (user != null)
+            {
+                var resetResult = (await _userManager.ResetPasswordAsync(user, code, newPassword));
+                if (resetResult.Succeeded)
+                {
+                    return new SysResult<bool> { Data = true, Ok = true, Message = "Password Reset Successful" };
+                }
+                else
+                {
+                    return new SysResult<bool> { Data = false, Ok = false, Message = (resetResult.Errors.ElementAt(0)?.Description) };
+                }
+
+                
+            }
+            else
+            {
+                return new SysResult<bool> { Data = true, Ok = true, Message = "Password Reset Failed (Invalid Account)" }; 
+            }
+        }
         public async Task<bool> SignIn(string userName,string password)
         {
             var isValidUserClaim = new List<Claim> { new Claim(ClaimTypes.Name, userName), new Claim(ClaimTypes.Role, RoleName.Client) };

@@ -18,6 +18,8 @@ using SKIPQzAPI.Services;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
 using Microsoft.Net.Http.Headers;
+using NETCore.MailKit.Extensions;
+using NETCore.MailKit.Infrastructure.Internal;
 
 namespace SKIPQzAPI
 {
@@ -67,7 +69,11 @@ namespace SKIPQzAPI
                    
                 });
             });
-                
+
+            services.AddMailKit(options =>
+            {
+                options.UseMailKit(Configuration.GetSection("MailKit").Get<MailKitOptions>());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
