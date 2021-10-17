@@ -58,6 +58,7 @@ namespace SKIPQzAPI.Services
 
         public async Task<SysResult<bool>> ResetPassword(string userid,string code,string newPassword)
         {
+            //ToDo: rewrite how to use _userManager.ResetPasswordAsync
             var user = await _userManager.FindByIdAsync(userid);
             if (user != null)
             {

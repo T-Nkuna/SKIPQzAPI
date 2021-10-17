@@ -4,8 +4,10 @@ using SKIPQzAPI.Models;
 using SKIPQzAPI.Services;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -16,7 +18,7 @@ namespace SKIPQzAPI.Controllers
     public class AccountController : ControllerBase
     {
         private readonly AccountService _accountService;
-
+        private static string _tokenFileName = "token.txt";
         public  AccountController(AccountService accountService)
         {
             _accountService = accountService;
@@ -36,18 +38,19 @@ namespace SKIPQzAPI.Controllers
         }
 
         [HttpGet("ResetPassword")]
-        public ContentResult Get([FromQuery] string userid, [FromQuery] string code)
+        public ContentResult GetResetPasswordLink([FromQuery] string userid, [FromQuery] string code)
         {
-            var passwordResetUrl = $"{Request.Scheme}://{Request.Host}/api/Account/ResetUserPassword?userid={userid}&code={code}";
+            var passwordResetUrl = Url.Action(nameof(ResetUserPassword), "Account", new { code, userid }, Request.Scheme, Request.Host.ToString());
             var html = $"<form method=\"post\" action=\"{passwordResetUrl}\">" +
                    $"New Password: <input name=\"newPassword\"\\><br\\>" +
                    $"<button type=\"submit\">Submit</button>" +
                    $"</form>";
+            
             return base.Content(html, "text/html");
         }
 
         [HttpPost("ResetUserPassword")]
-        public async Task<string> Get([FromQuery] string userid, [FromQuery] string code,[FromForm] string newPassword)
+        public async Task<string> ResetUserPassword([FromQuery] string userid, [FromQuery] string code,[FromForm] string newPassword)
         {
             return (await _accountService.ResetPassword(userid,code,newPassword))?.Message;
         }
@@ -68,10 +71,19 @@ namespace SKIPQzAPI.Controllers
         [HttpPost("forgotPassword/{userName}")]
         public async Task<SysResult<bool>> ForgotPassword(string userName)
         {
+            
             var resetPasswordLinkParams = await _accountService.ResetPasswordLinkParams(userName);
-            var resetLink = $"{Request.Scheme}://{Request.Host}/api/Account/ResetPassword?code=${resetPasswordLinkParams.code}&userid={resetPasswordLinkParams.userID}";
-            await _accountService.MailResetPasswordLink(resetLink, resetPasswordLinkParams.email);
-            return new SysResult<bool> { Data=true,Ok=true,Message=$"Reset Link Has Been Sent To {resetPasswordLinkParams.email}"};
+            var resetLink = Url.Action(nameof(GetResetPasswordLink), "Account", new { code = resetPasswordLinkParams.code, userid = resetPasswordLinkParams.userID }, Request.Scheme, Request.Host.ToString());// $"{Request.Scheme}://{Request.Host}/api/Account/ResetPassword?code={resetPasswordLinkParams.code}&userid={resetPasswordLinkParams.userID}";
+            if (!string.IsNullOrEmpty(resetPasswordLinkParams.email))
+            {
+                await _accountService.MailResetPasswordLink(resetLink, resetPasswordLinkParams.email);
+                return new SysResult<bool> { Data = true, Ok = true, Message = $"Reset Link Has Been Sent To {resetPasswordLinkParams.email}" };
+            }
+            else
+            {
+                return new SysResult<bool> { Data = false, Ok = false, Message = $"Failed To Send Reset Link To Account {resetPasswordLinkParams.email}" };
+            }
+           
         }
 
         // PUT api/<AccountController>/5
