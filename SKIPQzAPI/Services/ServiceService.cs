@@ -55,6 +55,8 @@ namespace SKIPQzAPI.Services
             await _dbContext.ServiceExtras.AddRangeAsync(addedServiceExtras);
 
             await _dbContext.SaveChangesAsync();
+            var extraDuration = _dbContext.ServiceExtras.Where(svEx => svEx.Service.ServiceId == service.ServiceId).Aggregate(0d, (carry, next) => carry + next.Extra.Duration);
+            service.Duration += extraDuration;
             return affected > 0 ? _mapper.Map<ServiceDto>(service) : null;
         }
         public async Task<ServiceDto> AddService(ServiceDto service)
@@ -88,7 +90,8 @@ namespace SKIPQzAPI.Services
                        .Select(extraId => _dbContext.Extras.FirstOrDefault(extra => extra.ExtraId == extraId))
                        .Where(extra => extra != null)
                        .Select(extra => new ServiceExtras { Extra = extra, Service = lastAddedService });
-
+                    var extrasDuration = _dbContext.Extras.Where(extra => service.ExtraIds.Contains(extra.ExtraId)).Aggregate(0d, (carry, next) => carry + next.Duration);
+                    lastAddedService.Duration += extrasDuration;
                     await _dbContext.AddRangeAsync(serviceExtras);
                     await _dbContext.SaveChangesAsync();
                 }
