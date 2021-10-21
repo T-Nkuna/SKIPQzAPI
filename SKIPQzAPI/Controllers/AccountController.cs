@@ -50,9 +50,9 @@ namespace SKIPQzAPI.Controllers
         }
 
         [HttpPost("ResetUserPassword")]
-        public async Task<string> ResetUserPassword([FromQuery] string userid, [FromQuery] string code,[FromForm] string newPassword)
+        public async Task<ContentResult> ResetUserPassword([FromQuery] string userid, [FromQuery] string code,[FromForm] string newPassword)
         {
-            return (await _accountService.ResetPassword(userid,code,newPassword))?.Message;
+            return base.Content(((await _accountService.ResetPassword(userid,code,newPassword))?.Message + $"<br/><a href=\"https://skipqzclient.growthlytix.co.za\">Go to login</a>"),"text/html");
         }
 
         // POST api/<AccountController>
