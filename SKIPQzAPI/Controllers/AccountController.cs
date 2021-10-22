@@ -61,7 +61,7 @@ namespace SKIPQzAPI.Controllers
 
 
         [HttpPost("signIn")]
-        public async Task<bool> Post()
+        public async Task<SysResult<string>> Post()
         {
             _ = Request.Form.TryGetValue("userName", out var userName);
             _ = Request.Form.TryGetValue("password", out var password);
@@ -87,13 +87,13 @@ namespace SKIPQzAPI.Controllers
         }
 
         // PUT api/<AccountController>/5
-        [HttpPut("{id}")]
+        [HttpPost("{id}")]
         public void Put(int id, [FromBody] string value)
         {
         }
 
         // DELETE api/<AccountController>/5
-        [HttpDelete("{id}")]
+        [HttpPost("{id}")]
         public void Delete(int id)
         {
         }

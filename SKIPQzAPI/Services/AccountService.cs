@@ -79,21 +79,26 @@ namespace SKIPQzAPI.Services
                 return new SysResult<bool> { Data = true, Ok = true, Message = "Password Reset Failed (Invalid Account)" }; 
             }
         }
-        public async Task<bool> SignIn(string userName,string password)
+        public async Task<SysResult<string>> SignIn(string userName,string password)
         {
             var isValidUserClaim = new List<Claim> { new Claim(ClaimTypes.Name, userName), new Claim(ClaimTypes.Role, RoleName.Client) };
             var claimIdentity = new ClaimsIdentity(isValidUserClaim);
            var existingUser =  await _userManager.FindByNameAsync(userName);
+            var response = new SysResult<string>();
             if (existingUser != null && (await _userManager.GetRolesAsync(existingUser)).Any(rName => rName == RoleName.Client))
             {
                 var signInResult = await _singInManager.CheckPasswordSignInAsync(existingUser, password, false);
-                return signInResult.Succeeded;
+                response.Ok = signInResult.Succeeded;
+                response.Data = existingUser.UserName;
 
             }
             else
             {
-               return false;
+                response.Ok = false;
+                response.Data = "";
             }
+
+            return response;
         }
 
         public async Task<SysResult<bool>> CreateAccount(ClientInfoCreateDTO accountDetails)

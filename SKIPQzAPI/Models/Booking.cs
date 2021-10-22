@@ -1,4 +1,5 @@
-﻿using SKIPQzAPI.Models.Time;
+﻿using Microsoft.AspNetCore.Identity;
+using SKIPQzAPI.Models.Time;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -9,6 +10,7 @@ namespace SKIPQzAPI.Models
 {
     public class Booking
     {
+
         public int BookingId { get; set; }
 
         public int ServiceId { get; set; }
@@ -20,5 +22,10 @@ namespace SKIPQzAPI.Models
         public TimeComponentInterval BookedTimeInterval { get; set; }
 
         public List<Extra> Extras { get; set; }
+
+        public IdentityUser client { get; set; }
+
+        public decimal Cost { get; set; }
+      
     }
 }

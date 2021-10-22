@@ -14,10 +14,12 @@ namespace SKIPQzAPI.Services
     {
         private readonly IMapper _mapper;
         private readonly ApplicationDbContext _dbContext ;
-        public ServiceService(IMapper mapper,ApplicationDbContext dbConext)
+        private readonly ExtraService _extraService;
+        public ServiceService(IMapper mapper,ApplicationDbContext dbConext, ExtraService extraService)
         {
             _mapper = mapper;
             _dbContext = dbConext;
+            _extraService = extraService;
         }
 
         public async Task<ServiceDto> UpdateService(ServiceDto serviceDTO)
@@ -54,9 +56,11 @@ namespace SKIPQzAPI.Services
              _dbContext.ServiceExtras.RemoveRange(removedServiceExtra);
             await _dbContext.ServiceExtras.AddRangeAsync(addedServiceExtras);
 
-            await _dbContext.SaveChangesAsync();
-            var extraDuration = _dbContext.ServiceExtras.Where(svEx => svEx.Service.ServiceId == service.ServiceId).Aggregate(0d, (carry, next) => carry + next.Extra.Duration);
+         
+            var extraDuration = _extraService.GetServiceExtras(service.ServiceId)
+                                .Aggregate(0d, (carry, next) => carry + next.Duration);
             service.Duration += extraDuration;
+            await _dbContext.SaveChangesAsync();
             return affected > 0 ? _mapper.Map<ServiceDto>(service) : null;
         }
         public async Task<ServiceDto> AddService(ServiceDto service)
@@ -90,10 +94,13 @@ namespace SKIPQzAPI.Services
                        .Select(extraId => _dbContext.Extras.FirstOrDefault(extra => extra.ExtraId == extraId))
                        .Where(extra => extra != null)
                        .Select(extra => new ServiceExtras { Extra = extra, Service = lastAddedService });
-                    var extrasDuration = _dbContext.Extras.Where(extra => service.ExtraIds.Contains(extra.ExtraId)).Aggregate(0d, (carry, next) => carry + next.Duration);
-                    lastAddedService.Duration += extrasDuration;
                     await _dbContext.AddRangeAsync(serviceExtras);
                     await _dbContext.SaveChangesAsync();
+                    var extrasDuration = _extraService.GetServiceExtras(lastAddedService.ServiceId)
+                                .Aggregate(0d, (carry, next) => carry + next.Duration);
+                    lastAddedService.Duration += extrasDuration;
+                    await _dbContext.SaveChangesAsync();
+
                 }
 
 

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using SKIPQzAPI.DataAccess;
 using SKIPQzAPI.Dtos;
@@ -16,11 +17,15 @@ namespace SKIPQzAPI.Services
         private readonly ApplicationDbContext _dbContext;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
-        public BookingService(ApplicationDbContext dbContext,IMapper mapper, IConfiguration config)
+        private readonly ExtraService _extraService;
+        private readonly UserManager<IdentityUser> _userManager;
+        public BookingService(ApplicationDbContext dbContext,IMapper mapper, IConfiguration config,  ExtraService extraService,UserManager<IdentityUser> userManager)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _configuration = config;
+            _extraService = extraService;
+            _userManager = userManager;
         }
 
         public async Task<BookingDto> AddBooking(BookingDto bookingDto)
@@ -29,6 +34,8 @@ namespace SKIPQzAPI.Services
             bookingDto.EndTimeSlot = new TimeComponent(bookingDto.StartTimeSlot).AddMinutes(minutesInterval).ToString();
             
             Booking newBooking = _mapper.Map<Booking>(bookingDto);
+            newBooking.Cost = _extraService.GetServiceExtras(newBooking.ServiceId).Aggregate(0m, (carry, next) => carry + next.Cost)+_dbContext.Services.FirstOrDefault(s=>s.ServiceId==newBooking.ServiceId)?.Cost??0m;
+            newBooking.client = await _userManager.FindByNameAsync(bookingDto.UserName);
             _dbContext.Add(newBooking);
             var affected = await _dbContext.SaveChangesAsync();
             var lastBooking = _dbContext.Bookings.OrderByDescending(bk => bk.BookingId).FirstOrDefault();

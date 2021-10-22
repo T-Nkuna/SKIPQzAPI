@@ -43,14 +43,14 @@ namespace SKIPQzAPI.Controllers
         }
 
         // PUT api/<ExtraController>/5
-        [HttpPut]
+        [HttpPost("Update")]
         public async Task<ExtraDto> Put([FromBody] ExtraDto value)
         {
             return await _extraService.UpdateExtra(value);
         }
 
         // DELETE api/<ExtraController>/5
-        [HttpDelete("{id}")]
+        [HttpPost("{id}")]
         public async Task<ExtraDto> Delete(int id)
         {
             return await _extraService.DeleteExtra(id);

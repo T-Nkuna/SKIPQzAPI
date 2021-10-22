@@ -43,11 +43,11 @@ namespace SKIPQzAPI
             services.AddHttpClient();
             services
                 .AddIdentity<IdentityUser, IdentityRole>(config=> {
-                    config.Password.RequiredLength = 4;
+                    config.Password.RequiredLength = 8;
                     config.Password.RequiredUniqueChars = 0;
                     config.Password.RequireDigit = false;
-                    config.Password.RequireUppercase = false;
-                    config.Password.RequireNonAlphanumeric = false;
+                    config.Password.RequireUppercase = true;
+                    config.Password.RequireNonAlphanumeric = true;
                     config.Password.RequireLowercase = false;
                 })
                 .AddEntityFrameworkStores<ApplicationDbContext>()

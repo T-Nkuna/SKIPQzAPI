@@ -41,13 +41,13 @@ namespace SKIPQzAPI.Controllers
         }
 
         // PUT api/<BookingController>/5
-        [HttpPut("{id}")]
+        [HttpPost("{id}")]
         public void Put(int id, [FromBody] string value)
         {
         }
 
         // DELETE api/<BookingController>/5
-        [HttpDelete("{id}")]
+        [HttpPost("{id}")]
         public async Task<BookingDto> Delete(int id)
         {
             return await _bookingService.DeleteBooking(id);

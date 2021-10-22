@@ -52,7 +52,7 @@ namespace SKIPQzAPI.Controllers
         }
 
         // PUT api/<ServiceProviderController>/5
-        [HttpPut]
+        [HttpPost("Update")]
         public async Task<ServiceProviderDto> Put()
         {
             
@@ -72,7 +72,7 @@ namespace SKIPQzAPI.Controllers
         }
 
         // DELETE api/<ServiceProviderController>/5
-        [HttpDelete("{id}")]
+        [HttpPost("{id}")]
         public async Task<ServiceProviderDto> Delete(int id)
         {
             return await _serviceProviderService.DeleteServiceProvider(id);

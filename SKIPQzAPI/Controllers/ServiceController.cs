@@ -51,7 +51,7 @@ namespace SKIPQzAPI.Controllers
         }
 
         // PUT api/<ServiceController>/5
-        [HttpPut]
+        [HttpPost("Update")]
         public async Task<ServiceDto> Put()
         {
             IFormCollection form = Request.Form;
@@ -69,7 +69,7 @@ namespace SKIPQzAPI.Controllers
         }
 
         // DELETE api/<ServiceController>/5
-        [HttpDelete("{id}")]
+        [HttpPost("{id}")]
         public Task<ServiceDto> Delete(int id)
         {
             return _servicesService.DeleteService(id);

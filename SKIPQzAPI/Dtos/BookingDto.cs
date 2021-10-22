@@ -19,5 +19,9 @@ namespace SKIPQzAPI.Dtos
         public string EndTimeSlot { get; set; }
 
         public int BookingId { get; set; }
+
+        public string UserName { get; set; } //client
+
+        public decimal Cost { get; set; }
     }
 }
