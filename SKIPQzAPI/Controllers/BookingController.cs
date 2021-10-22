@@ -40,17 +40,9 @@ namespace SKIPQzAPI.Controllers
             return await _bookingService.AddBooking(value);
         }
 
-        // PUT api/<BookingController>/5
-        [HttpPost("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
+        [HttpGet("UserBookings")]
+        public IEnumerable<BookingDto> BookingsPerUser(string userName) => _bookingService.BookingsPerUser(userName);
 
-        // DELETE api/<BookingController>/5
-        [HttpPost("{id}")]
-        public async Task<BookingDto> Delete(int id)
-        {
-            return await _bookingService.DeleteBooking(id);
-        }
+       
     }
 }

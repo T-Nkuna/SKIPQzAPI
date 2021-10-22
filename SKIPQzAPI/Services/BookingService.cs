@@ -68,5 +68,16 @@ namespace SKIPQzAPI.Services
                 .Select(bk => _mapper.Map<BookingDto>(bk))
                 .ToList();
         }
+
+        public IEnumerable<BookingDto> BookingsPerUser(string userName)
+        {
+            var userBookings = (from booking in _dbContext.Bookings
+                               where booking.client.UserName == userName
+                               orderby booking.BookedDate ascending
+                               select booking)
+                               .ToList()
+                               .Select(b=>_mapper.Map<BookingDto>(b));
+            return userBookings;
+        }
     }
 }
