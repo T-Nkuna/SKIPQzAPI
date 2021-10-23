@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using SKIPQzAPI.Common.Constants;
 using SKIPQzAPI.DataAccess;
 using SKIPQzAPI.Dtos;
 using SKIPQzAPI.Models;
@@ -72,12 +73,27 @@ namespace SKIPQzAPI.Services
         public IEnumerable<BookingDto> BookingsPerUser(string userName)
         {
             var userBookings = (from booking in _dbContext.Bookings
-                               where booking.client.UserName == userName
-                               orderby booking.BookedDate descending
+                               where booking.client.UserName == userName && booking.Status != PITStatus.InActive
+                               orderby booking.BookedDate.Date descending, booking.BookedTimeInterval.StartTime.Hour ascending, booking.BookedTimeInterval.StartTime.Minute ascending
                                select booking)
                                .ToList()
                                .Select(b=>_mapper.Map<BookingDto>(b));
             return userBookings;
+        }
+
+        public SysResult<int> CancelUserBooking(string userName,int bookingId)
+        {
+            var cancelledBooking = _dbContext.Bookings.FirstOrDefault(bk => bk.BookingId == bookingId && bk.client.UserName == userName);
+            if (cancelledBooking != null)
+            {
+                cancelledBooking.Status = PITStatus.InActive;
+               var cancelOk =  _dbContext.SaveChanges();
+                return new SysResult<int> { Data = cancelledBooking.BookingId, Ok = cancelOk>0, Message = cancelOk >0? "Booking Cancelled" : "Failed To Cancel Booking" };
+            }
+            else
+            {
+                return new SysResult<int> { Data = default, Ok = false, Message = "No Such Booking Exists" };
+            }
         }
     }
 }

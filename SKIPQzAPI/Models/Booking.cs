@@ -34,7 +34,9 @@ namespace SKIPQzAPI.Models
         {
             get
             {
-                var dateTimeDiff = this.BookedDate.Subtract(DateTime.Now);
+                
+                var bookingTime = new DateTime(this.BookedDate.Year, this.BookedDate.Month, this.BookedDate.Day, (int)(this.BookedTimeInterval?.StartTime?.Hour??0), (int)(this.BookedTimeInterval?.StartTime?.Minute??0),0);
+                var dateTimeDiff = bookingTime.Subtract(DateTime.Now);
                 var hoursToBooking = dateTimeDiff.Hours + dateTimeDiff.Days*24 + (dateTimeDiff.Minutes/60);
                 return hoursToBooking >=2;
             }

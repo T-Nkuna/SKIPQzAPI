@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using SKIPQzAPI.Dtos;
+using SKIPQzAPI.Models;
 using SKIPQzAPI.Models.Time;
 using SKIPQzAPI.Services;
 
@@ -43,6 +44,8 @@ namespace SKIPQzAPI.Controllers
         [HttpGet("UserBookings")]
         public IEnumerable<BookingDto> BookingsPerUser(string userName) => _bookingService.BookingsPerUser(userName);
 
+        [HttpPost("CancelUserBooking")]
+        public SysResult<int> CancelUserBooking([FromBody] CancelBookingRequestDto cancelRequest) => _bookingService.CancelUserBooking(cancelRequest.UserName, cancelRequest.BookingId);
        
     }
 }
