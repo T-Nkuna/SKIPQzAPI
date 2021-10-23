@@ -83,7 +83,8 @@ namespace SKIPQzAPI
                 EndTimeSlot = bookedTimeInterval?.EndTime.ToString()??"",
                 StartTimeSlot = bookedTimeInterval?.StartTime.ToString()??"",
                 ExtraIds = _dbContext.Bookings.Where(bk => bk.BookingId == source.BookingId).Select(bk => new { Extras = bk.Extras }).FirstOrDefault()?.Extras.Select(ex => ex.ExtraId).ToList() ?? new List<int>(),
-                Cost = source.Cost
+                Cost = source.Cost,
+                CanCancel = source.CanCancel
             };
 
             return newBookingDto;

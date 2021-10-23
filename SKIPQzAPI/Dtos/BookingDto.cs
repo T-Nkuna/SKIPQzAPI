@@ -23,5 +23,7 @@ namespace SKIPQzAPI.Dtos
         public string UserName { get; set; } //client
 
         public decimal Cost { get; set; }
+
+        public bool CanCancel { get; set; }
     }
 }

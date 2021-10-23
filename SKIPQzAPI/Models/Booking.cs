@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using SKIPQzAPI.Common.Constants;
 using SKIPQzAPI.Models.Time;
 using System;
 using System.Collections.Generic;
@@ -26,6 +27,18 @@ namespace SKIPQzAPI.Models
         public IdentityUser client { get; set; }
 
         public decimal Cost { get; set; }
+
+        public PITStatus Status { get; set; } = PITStatus.Active;
+
+        public bool CanCancel
+        {
+            get
+            {
+                var dateTimeDiff = this.BookedDate.Subtract(DateTime.Now);
+                var hoursToBooking = dateTimeDiff.Hours + dateTimeDiff.Days*24 + (dateTimeDiff.Minutes/60);
+                return hoursToBooking >=2;
+            }
+        }
       
     }
 }

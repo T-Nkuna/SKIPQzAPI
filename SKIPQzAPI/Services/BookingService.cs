@@ -73,7 +73,7 @@ namespace SKIPQzAPI.Services
         {
             var userBookings = (from booking in _dbContext.Bookings
                                where booking.client.UserName == userName
-                               orderby booking.BookedDate ascending
+                               orderby booking.BookedDate descending
                                select booking)
                                .ToList()
                                .Select(b=>_mapper.Map<BookingDto>(b));
