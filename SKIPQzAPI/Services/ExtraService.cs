@@ -31,15 +31,25 @@ namespace SKIPQzAPI.Services
 
         public async Task<ExtraDto> DeleteExtra(int extraId)
         {
-            var deleted = _applicationDbContext.Extras.FirstOrDefault(ex => ex.ExtraId == extraId);
-            var affected = 0;
-            if(deleted!=null)
+            try
             {
-                _applicationDbContext.Remove(deleted);
-            }
+                var deleted = _applicationDbContext.Extras.FirstOrDefault(ex => ex.ExtraId == extraId);
+                var affected = 0;
+                if (deleted != null)
+                {
+                    var serviceExtraLinks = _applicationDbContext.ServiceExtras.Where(svExtra => svExtra.Extra.ExtraId == extraId).AsEnumerable();
+                    _applicationDbContext.RemoveRange(serviceExtraLinks);
+                    _applicationDbContext.Remove(deleted);
+                    affected = await _applicationDbContext.SaveChangesAsync();
+                }
 
-            affected = await _applicationDbContext.SaveChangesAsync();
-            return affected > 0 ? _mapper.Map<ExtraDto>(deleted) : null;
+
+                return affected > 0 ? _mapper.Map<ExtraDto>(deleted) : null;
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public  async Task<ExtraDto> UpdateExtra(ExtraDto extraDto)
