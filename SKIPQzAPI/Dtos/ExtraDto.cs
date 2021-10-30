@@ -7,7 +7,7 @@ namespace SKIPQzAPI.Dtos
 {
     public class ExtraDto
     {
-        public int ExtraId { get; set; }
+        public long? ExtraId { get; set; }
 
         public decimal Cost { get; set; }
 

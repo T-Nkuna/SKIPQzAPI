@@ -26,6 +26,6 @@ namespace SKIPQzAPI.Models.Shared
         public DateTime? ModifiedOn { get; set; }
         public long? ModifiedBy { get; set; }
         public long? Id { get; set; }
-        public long? EntityId { get; set; }
+        public long? OrganisationId { get; set; }
     }
 }

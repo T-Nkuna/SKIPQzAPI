@@ -18,7 +18,6 @@ namespace SKIPQzAPI.Controllers
     public class AccountController : ControllerBase
     {
         private readonly AccountService _accountService;
-        private static string _tokenFileName = "token.txt";
         public  AccountController(AccountService accountService)
         {
             _accountService = accountService;

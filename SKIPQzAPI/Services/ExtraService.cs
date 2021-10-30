@@ -25,7 +25,7 @@ namespace SKIPQzAPI.Services
             Extra extra = _mapper.Map<Extra>(extraDto);
             _applicationDbContext.Add(extra);
             var affected = await _applicationDbContext.SaveChangesAsync();
-            var lastInserted = _applicationDbContext.Extras.OrderByDescending(ex => ex.ExtraId).FirstOrDefault();
+            var lastInserted = _applicationDbContext.Extras.OrderByDescending(ex => ex.Id).FirstOrDefault();
             return affected > 0 ? _mapper.Map<ExtraDto>(lastInserted):null;
         }
 
@@ -33,11 +33,11 @@ namespace SKIPQzAPI.Services
         {
             try
             {
-                var deleted = _applicationDbContext.Extras.FirstOrDefault(ex => ex.ExtraId == extraId);
+                var deleted = _applicationDbContext.Extras.FirstOrDefault(ex => ex.Id == extraId);
                 var affected = 0;
                 if (deleted != null)
                 {
-                    var serviceExtraLinks = _applicationDbContext.ServiceExtras.Where(svExtra => svExtra.Extra.ExtraId == extraId).AsEnumerable();
+                    var serviceExtraLinks = _applicationDbContext.ServiceExtras.Where(svExtra => svExtra.Extra.Id == extraId).AsEnumerable();
                     _applicationDbContext.RemoveRange(serviceExtraLinks);
                     _applicationDbContext.Remove(deleted);
                     affected = await _applicationDbContext.SaveChangesAsync();
@@ -62,16 +62,16 @@ namespace SKIPQzAPI.Services
 
         public IEnumerable<ExtraDto> GetExtras(int pageIndex, int pageSize)
         {
-            return _applicationDbContext.Extras.OrderByDescending(ex => ex.ExtraId)
+            return _applicationDbContext.Extras.OrderByDescending(ex => ex.Id)
                 .Skip(pageIndex * pageSize)
                 .Take(pageSize).ToList()
                 .Select(extra => _mapper.Map<ExtraDto>(extra));
         }
 
-        public IEnumerable<ExtraDto> GetServiceExtras(int serviceId)
+        public IEnumerable<ExtraDto> GetServiceExtras(long? serviceId)
         {
             return _applicationDbContext.ServiceExtras
-                .Where(sv => sv.Service.ServiceId == serviceId)
+                .Where(sv => sv.Service.Id == serviceId)
                 .Select(ex => ex.Extra)
                 .ToList()
                 .Select(ex => _mapper.Map<ExtraDto>(ex));

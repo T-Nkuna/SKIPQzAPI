@@ -38,15 +38,15 @@ namespace SKIPQzAPI.Services
         }
         public ServiceProviderDto GetServiceProvider(int serviceProviderId)
         {
-           var serviceProvider=  _dbContext.ServiceProviders.FirstOrDefault(sP => sP.ServiceProviderId == serviceProviderId);
+           var serviceProvider=  _dbContext.ServiceProviders.FirstOrDefault(sP => sP.Id == serviceProviderId);
             return _mapper.Map<ServiceProviderDto>(serviceProvider);
         }
 
         public IEnumerable<ServiceProviderDto> GetServiceProviders(int serviceId,int pageSize,int pageIndex=0)
         {
            return _dbContext.ServiceProviderServices
-                .OrderByDescending(spsRec => spsRec.ServiceProvider.ServiceProviderId)
-                .Where(rec => rec.Service.ServiceId == serviceId)
+                .OrderByDescending(spsRec => spsRec.ServiceProvider.Id)
+                .Where(rec => rec.Service.Id == serviceId)
                 .Skip(pageIndex*pageSize)
                 .Take(pageSize)
                 .Select(spS=>spS.ServiceProvider)
@@ -57,7 +57,7 @@ namespace SKIPQzAPI.Services
         public IEnumerable<ServiceProviderDto> GetServiceProviders(int pageSize, int pageIndex = 0)
         {
             return _dbContext.ServiceProviders
-                 .OrderByDescending(sp=>sp.ServiceProviderId)
+                 .OrderByDescending(sp=>sp.Id)
                  .Skip(pageIndex * pageSize)
                  .Take(pageSize)
                  .ToList()
@@ -89,10 +89,10 @@ namespace SKIPQzAPI.Services
 
                 await _dbContext.AddAsync(sProvider);
                 affected = await _dbContext.SaveChangesAsync();
-                var lastAddedServiceProvider = _dbContext.ServiceProviders.OrderByDescending(sp=>sp.ServiceProviderId).FirstOrDefault();
+                var lastAddedServiceProvider = _dbContext.ServiceProviders.OrderByDescending(sp=>sp.Id).FirstOrDefault();
                 if(lastAddedServiceProvider!=null && serviceProvider.ImageFile!=null)
                 {
-                    var imageFileName = $"serviceProvider_{lastAddedServiceProvider.ServiceProviderId}" + Path.GetExtension(serviceProvider.ImageFile.FileName);
+                    var imageFileName = $"serviceProvider_{lastAddedServiceProvider.Id}" + Path.GetExtension(serviceProvider.ImageFile.FileName);
                     var imageFilePath = Path.Combine("./wwwroot/images",imageFileName);
                     using(var fStream = new FileStream(imageFilePath,FileMode.Create))
                     {
@@ -108,7 +108,7 @@ namespace SKIPQzAPI.Services
 
                 //add services to the service provider
                 serviceProvider.Services.ForEach(sv => {
-                    var sourceService = _dbContext.Services.FirstOrDefault(service => service.ServiceId == sv.ServiceId);
+                    var sourceService = _dbContext.Services.FirstOrDefault(service => service.Id == sv.ServiceId);
                     if(sourceService!=null)
                     {
                         _dbContext.ServiceProviderServices.Add(new ServiceProviderServices { Service = sourceService, ServiceProvider = sProvider });
@@ -125,11 +125,11 @@ namespace SKIPQzAPI.Services
 
         public async Task<ServiceProviderDto> DeleteServiceProvider(int serviceProviderId)
         {
-            var serviceProvider = _dbContext.ServiceProviders.FirstOrDefault(sp => sp.ServiceProviderId == serviceProviderId);
+            var serviceProvider = _dbContext.ServiceProviders.FirstOrDefault(sp => sp.Id == serviceProviderId);
             if (serviceProvider != null) 
             {
                 var removedServiceProviderDto = _mapper.Map<ServiceProviderDto>(serviceProvider);
-                var spServices = _dbContext.ServiceProviderServices.Where(spsRec => spsRec.ServiceProvider.ServiceProviderId == serviceProvider.ServiceProviderId).ToList();
+                var spServices = _dbContext.ServiceProviderServices.Where(spsRec => spsRec.ServiceProvider.Id == serviceProvider.Id).ToList();
                 spServices.ForEach(spsRec => _dbContext.Remove(spsRec));
                 _dbContext.Remove(serviceProvider);
                 return await _dbContext.SaveChangesAsync() > 0 ? removedServiceProviderDto : null;
@@ -152,7 +152,7 @@ namespace SKIPQzAPI.Services
                 var matchedStr = pattern.Match(dateString).Value;
                 var strDigits = matchedStr.Split('-').Select(digitStr => Convert.ToInt32(digitStr)).ToList();
                 var bookedDate = new DateTime(strDigits[0], strDigits[1]+1, strDigits[2]);
-                var bookedTimeIntervals = _dbContext.Bookings.Where(booking => booking.ServiceProviderId == serviceProviderId && booking.BookedDate.Date == bookedDate.Date).Select(bk=>new TimeComponentInterval { EndTime = bk.BookedTimeInterval.EndTime,StartTime=bk.BookedTimeInterval.StartTime,TimeComponentIntervalId=bk.BookedTimeInterval.TimeComponentIntervalId,WorkingDayId=bk.BookedTimeInterval.WorkingDayId}).ToList();
+                var bookedTimeIntervals = _dbContext.Bookings.Where(booking => booking.Id == serviceProviderId && booking.BookedDate.Date == bookedDate.Date).Select(bk=>new TimeComponentInterval { EndTime = bk.BookedTimeInterval.EndTime,StartTime=bk.BookedTimeInterval.StartTime,TimeComponentIntervalId=bk.BookedTimeInterval.TimeComponentIntervalId,WorkingDayId=bk.BookedTimeInterval.WorkingDayId}).ToList();
                 var availableSlots = new List<string>();
                 foreach(var slot in GetServiceTimeSlots(serviceProviderId, serviceId, bookedDate.DayOfWeek))
                 {
@@ -170,8 +170,8 @@ namespace SKIPQzAPI.Services
         }
         public  List<string> GetServiceTimeSlots(int serviceProviderId,int serviceId,DayOfWeek dayOfWeek)
         {
-            var serviceProvider =_dbContext.ServiceProviders.FirstOrDefault(sP => sP.ServiceProviderId == serviceProviderId);
-            var service = _dbContext.Services.FirstOrDefault(service => service.ServiceId == serviceId);
+            var serviceProvider =_dbContext.ServiceProviders.FirstOrDefault(sP => sP.Id == serviceProviderId);
+            var service = _dbContext.Services.FirstOrDefault(service => service.Id == serviceId);
             var targetWorkingDay = _dbContext.WorkingDays
                 .Where(wd => wd.ServiceProviderId == serviceProviderId && wd.WeekDay == dayOfWeek)
                 .Select(wd => new WorkingDay { Shifts = wd.Shifts.Select(tcI => new TimeComponentInterval(new TimeComponent(tcI.StartTime.Hour, tcI.StartTime.Minute), new TimeComponent(tcI.EndTime.Hour, tcI.EndTime.Minute))).ToList() })
@@ -193,24 +193,24 @@ namespace SKIPQzAPI.Services
         {
             ServiceProvider serviceProvider = _mapper.Map<ServiceProvider>(serviceProviderDto);
            
-            if(serviceProvider.ServiceProviderId>0)
+            if(serviceProvider.Id>0)
             {
                 _dbContext.Update(serviceProvider);
-                var spsRecs = _dbContext.ServiceProviderServices.Where(spsRec=>spsRec.ServiceProvider.ServiceProviderId==serviceProviderDto.ServiceProviderId).Select(spsRec => new ServiceProviderServices { Service=spsRec.Service, ServiceProvider=spsRec.ServiceProvider}).ToList();
-                var spsRecsServiceIds = spsRecs.Select(spsRec => spsRec.Service.ServiceId);
+                var spsRecs = _dbContext.ServiceProviderServices.Where(spsRec=>spsRec.ServiceProvider.Id==serviceProviderDto.ServiceProviderId).Select(spsRec => new ServiceProviderServices { Service=spsRec.Service, ServiceProvider=spsRec.ServiceProvider}).ToList();
+                var spsRecsServiceIds = spsRecs.Select(spsRec => spsRec.Service.Id);
                 var newServiceIds = serviceProviderDto.Services.Select(sv => sv.ServiceId);
                 var unionServiceIds = spsRecsServiceIds.Union(newServiceIds);
                 var intersectionServiceIds = spsRecsServiceIds.Intersect(newServiceIds).ToList();
                 var removedServiceIds = unionServiceIds.Where(svId => !newServiceIds.Contains(svId)).ToList();
                 var addedServiceIds = newServiceIds.Where(svId => !intersectionServiceIds.Contains(svId) && !removedServiceIds.Contains(svId)).ToList();
                 removedServiceIds.ForEach(svId => {
-                    var removed = _dbContext.ServiceProviderServices.FirstOrDefault(spsRec => spsRec.Service.ServiceId == svId);
+                    var removed = _dbContext.ServiceProviderServices.FirstOrDefault(spsRec => spsRec.Service.Id == svId);
                     _dbContext.Remove(removed);
                 });
 
                 addedServiceIds.ForEach(svId =>
                 {
-                    var sourceService = _dbContext.Services.FirstOrDefault(sv => sv.ServiceId == svId);
+                    var sourceService = _dbContext.Services.FirstOrDefault(sv => sv.Id == svId);
                     if (sourceService != null)
                     {
                         _dbContext.ServiceProviderServices.Add(new ServiceProviderServices
@@ -223,7 +223,7 @@ namespace SKIPQzAPI.Services
 
                 if (serviceProviderDto.ImageFile != null)
                 {
-                    var fileName = $"serviceProvider_{serviceProvider.ServiceProviderId}{Path.GetExtension(serviceProviderDto.ImageFile.FileName)}";
+                    var fileName = $"serviceProvider_{serviceProvider.Id}{Path.GetExtension(serviceProviderDto.ImageFile.FileName)}";
                     var filePath = Path.Combine("./wwwroot/images", fileName);
                     using(var fs = new FileStream(filePath,FileMode.Create))
                     {

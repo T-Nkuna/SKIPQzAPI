@@ -9,6 +9,6 @@ namespace SKIPQzAPI.Dtos
     {
         public string UserName { get; set; }
 
-        public int BookingId { get; set; }
+        public long? BookingId { get; set; }
     }
 }

@@ -46,7 +46,7 @@ namespace SKIPQzAPI.Controllers
             service.Duration = Convert.ToDouble(value["duration"]);
             service.Name = value["name"];
             service.ImageFile = value.Files["imageFile"];
-            service.ExtraIds = value.ContainsKey("extraIds") ? JsonConvert.DeserializeObject<List<int>>(value["extraIds"]) : new List<int>();
+            service.ExtraIds = value.ContainsKey("extraIds") ? JsonConvert.DeserializeObject<List<long?>>(value["extraIds"]) : new List<long?>();
             return  await _servicesService.AddService(service);
         }
 
@@ -62,7 +62,7 @@ namespace SKIPQzAPI.Controllers
                 ImageFile = form.Files["imageFile"],
                 Name = form["name"],
                 ServiceId = Convert.ToInt32(form["serviceId"]),
-                ExtraIds = form.ContainsKey("extraIds") ? JsonConvert.DeserializeObject<List<int>>(form["extraIds"]) : new List<int>(),
+                ExtraIds = form.ContainsKey("extraIds") ? JsonConvert.DeserializeObject<List<long?>>(form["extraIds"]) : new List<long?>(),
                 ImageUrl = form["imageUrl"]
             };
             return await _servicesService.UpdateService(serviceDTO);
@@ -76,7 +76,7 @@ namespace SKIPQzAPI.Controllers
         }
 
         [HttpPost("{id}/addProvider")]
-        public async Task<int> AddProvider(int id,[FromBody] ServiceProviderDto serviceProviderDto)
+        public async Task<int> AddProvider(long? id,[FromBody] ServiceProviderDto serviceProviderDto)
         {
             return await _servicesService.AddServiceProvider(id, serviceProviderDto.ServiceProviderId);
         }

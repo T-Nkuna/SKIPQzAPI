@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using SKIPQzAPI.Common.Constants;
+using SKIPQzAPI.Models.Shared;
 using SKIPQzAPI.Models.Time;
 using System;
 using System.Collections.Generic;
@@ -9,14 +10,12 @@ using System.Threading.Tasks;
 
 namespace SKIPQzAPI.Models
 {
-    public class Booking
+    public class Booking : PITBaseEntity
     {
 
-        public int BookingId { get; set; }
+        public long? ServiceId { get; set; }
 
-        public int ServiceId { get; set; }
-
-        public int ServiceProviderId { get; set; }
+        public long? ServiceProviderId { get; set; }
 
         public DateTime BookedDate { get; set; }
 
@@ -28,7 +27,6 @@ namespace SKIPQzAPI.Models
 
         public decimal Cost { get; set; }
 
-        public PITStatus Status { get; set; } = PITStatus.Active;
 
         public bool CanCancel
         {

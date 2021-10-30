@@ -55,8 +55,8 @@ namespace SKIPQzAPI
                 Duration = source.Duration,
                 ImageUrl = source.ImageUrl,
                 Name = source.Name,
-                ExtraIds = _dbContext.ServiceExtras.Where(svExtra => svExtra.Service.ServiceId == source.ServiceId).Select(sv => sv.Extra.ExtraId).ToList(),
-                ServiceId = source.ServiceId
+                ExtraIds = _dbContext.ServiceExtras.Where(svExtra => svExtra.Service.Id == source.Id).Select(sv => sv.Extra.Id).ToList(),
+                ServiceId = source.Id
                 
             });
         }
@@ -73,16 +73,16 @@ namespace SKIPQzAPI
         }
         BookingDto ITypeConverter<Booking, BookingDto>.Convert(Booking source, BookingDto destination, ResolutionContext context)
         {
-            TimeComponentInterval bookedTimeInterval = _dbContext.Bookings.Where(bk => bk.BookingId == source.BookingId).Select(bk => new TimeComponentInterval { EndTime=bk.BookedTimeInterval.EndTime,StartTime=bk.BookedTimeInterval.StartTime}).FirstOrDefault();
+            TimeComponentInterval bookedTimeInterval = _dbContext.Bookings.Where(bk => bk.Id == source.Id).Select(bk => new TimeComponentInterval { EndTime=bk.BookedTimeInterval.EndTime,StartTime=bk.BookedTimeInterval.StartTime}).FirstOrDefault();
             BookingDto newBookingDto = new BookingDto
             {
                 BookedDate = $"{source.BookedDate.Year}-{source.BookedDate.Month-1}-{source.BookedDate.Day}",
-                BookingId = source.BookingId,
+                BookingId = source.Id,
                 ServiceId = source.ServiceId,
                 ServiceProviderId = source.ServiceProviderId,
                 EndTimeSlot = bookedTimeInterval?.EndTime.ToString()??"",
                 StartTimeSlot = bookedTimeInterval?.StartTime.ToString()??"",
-                ExtraIds = _dbContext.Bookings.Where(bk => bk.BookingId == source.BookingId).Select(bk => new { Extras = bk.Extras }).FirstOrDefault()?.Extras.Select(ex => ex.ExtraId).ToList() ?? new List<int>(),
+                ExtraIds = _dbContext.Bookings.Where(bk => bk.Id == source.Id).Select(bk => new { Extras = bk.Extras }).FirstOrDefault()?.Extras.Select(ex => ex.Id).ToList() ?? new List<long?>(),
                 Cost = source.Cost,
                 CanCancel = source.CanCancel
             };
@@ -107,7 +107,7 @@ namespace SKIPQzAPI
             Booking newBooking = new Booking
             {
                 BookedDate = bookedDate ,
-                BookingId = source.BookingId,
+                Id = source.BookingId,
                 ServiceId = source.ServiceId,
                 ServiceProviderId = source.ServiceProviderId,
                 BookedTimeInterval =  new TimeComponentInterval {
@@ -115,7 +115,7 @@ namespace SKIPQzAPI
                     EndTime = new TimeComponent(source.EndTimeSlot),
                     WorkingDayId = workDay!=null?workDay.WorkingDayId:0
                 },
-                Extras = _dbContext.Bookings.Where(bk=>bk.BookingId==source.BookingId).Select(bk=>bk.Extras).FirstOrDefault()??source.ExtraIds?.Select(exId=>_dbContext.Extras.FirstOrDefault(ex=>ex.ExtraId==exId)).ToList().Where(ex=>ex!=null).ToList()
+                Extras = _dbContext.Bookings.Where(bk=>bk.Id==source.BookingId).Select(bk=>bk.Extras).FirstOrDefault()??source.ExtraIds?.Select(exId=>_dbContext.Extras.FirstOrDefault(ex=>ex.Id==exId)).ToList().Where(ex=>ex!=null).ToList()
             };
 
             return newBooking;
@@ -133,14 +133,14 @@ namespace SKIPQzAPI
         {
             var sPDto = new ServiceProviderDto();
             var spUser = _dbContext.ServiceProviders.FirstOrDefault(
-                sp => sp.ServiceProviderId == source.ServiceProviderId
+                sp => sp.Id == source.Id
                  );
             var email =  spUser?.User?.Email??"";
             sPDto.Email = email;
 
             sPDto.Name = source.Name;
-            sPDto.ServiceProviderId = source.ServiceProviderId;
-            sPDto.ScheduledWorkDays = _dbContext.WorkingDays.Where(wD => wD.ServiceProviderId == source.ServiceProviderId).Select(wD => new WorkingDayDto
+            sPDto.ServiceProviderId = source.Id;
+            sPDto.ScheduledWorkDays = _dbContext.WorkingDays.Where(wD => wD.ServiceProviderId == source.Id).Select(wD => new WorkingDayDto
             {
                 DayOfWeek = wD.WeekDay,
                 Shifts = wD.Shifts.Select(shift => new TimeInterval
@@ -153,8 +153,8 @@ namespace SKIPQzAPI
                
             }).ToList();
             sPDto.Services = _dbContext.ServiceProviderServices
-                            .Where(sps => sps.ServiceProvider.ServiceProviderId == source.ServiceProviderId)
-                            .Join(_dbContext.Services, (sps) => sps.Service.ServiceId, (sv) => sv.ServiceId, (sps, sv) => new ServiceDto { Name = sv.Name, Duration = sv.Duration, Cost = sv.Cost, ServiceId = sv.ServiceId })
+                            .Where(sps => sps.ServiceProvider.Id == source.Id)
+                            .Join(_dbContext.Services, (sps) => sps.Service.Id, (sv) => sv.Id, (sps, sv) => new ServiceDto { Name = sv.Name, Duration = sv.Duration, Cost = sv.Cost, ServiceId = sv.Id })
                             .ToList();
             sPDto.ImageUrl = source.ImageUrl;
             return sPDto;
@@ -172,7 +172,7 @@ namespace SKIPQzAPI
             var sProvider = new ServiceProvider();
             sProvider.Name = sourceMember.Name;
             sProvider.WorkingDays = sourceMember.ScheduledWorkDays.Select(sD => new WorkingDay {WorkingDayId=sD.WorkingDayId, WeekDay = sD.DayOfWeek, Shifts = sD.Shifts.Select(tI => new TimeComponentInterval(new TimeComponent(tI.StartTimeSlot), new TimeComponent(tI.EndTimeSlot),sD.WorkingDayId,tI.TimeIntervalId)).ToList() }).ToList();
-            sProvider.ServiceProviderId = sourceMember.ServiceProviderId;
+            sProvider.Id = sourceMember.ServiceProviderId;
             sProvider.User = _dbContext.Users.FirstOrDefault(user => user.Email == sourceMember.Email);
             sProvider.ImageUrl = sourceMember.ImageUrl;
             return sProvider;

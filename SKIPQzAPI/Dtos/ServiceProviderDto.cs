@@ -15,7 +15,7 @@ namespace SKIPQzAPI.Dtos
         [MaxLength(255)]
         public string Email { get; set; }
 
-        public int ServiceProviderId { get; set; }
+        public long? ServiceProviderId { get; set; }
 
         public List<WorkingDayDto> ScheduledWorkDays { get; set; }
 

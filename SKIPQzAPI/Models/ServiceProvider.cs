@@ -5,13 +5,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using SKIPQzAPI.Models.Time;
+using SKIPQzAPI.Models.Shared;
 
 namespace SKIPQzAPI.Models
 {
-    public class ServiceProvider
+    public class ServiceProvider: BaseEntity
     {
   
-        public int ServiceProviderId { get; set; }
         public IdentityUser User { get; set; }
 
         [MaxLength(255)]

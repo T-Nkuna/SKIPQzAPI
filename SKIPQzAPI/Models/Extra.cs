@@ -1,13 +1,12 @@
 ﻿
+using SKIPQzAPI.Models.Shared;
 using System.ComponentModel.DataAnnotations;
 
 
 namespace SKIPQzAPI.Models
 {
-    public class Extra
+    public class Extra : BaseEntity
     {
-        public int ExtraId { get; set; }
-
         public decimal Cost { get; set; }
 
         [MaxLength(256)]

@@ -45,7 +45,7 @@ namespace SKIPQzAPI.Controllers
         public IEnumerable<BookingDto> BookingsPerUser(string userName) => _bookingService.BookingsPerUser(userName);
 
         [HttpPost("CancelUserBooking")]
-        public SysResult<int> CancelUserBooking([FromBody] CancelBookingRequestDto cancelRequest) => _bookingService.CancelUserBooking(cancelRequest.UserName, cancelRequest.BookingId);
+        public SysResult<long?> CancelUserBooking([FromBody] CancelBookingRequestDto cancelRequest) => _bookingService.CancelUserBooking(cancelRequest.UserName, cancelRequest.BookingId);
        
     }
 }

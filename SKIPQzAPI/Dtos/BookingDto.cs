@@ -7,10 +7,10 @@ namespace SKIPQzAPI.Dtos
 {
     public class BookingDto
     {
-        public int ServiceProviderId { get; set; }
-        public int ServiceId{get;set;}
+        public long? ServiceProviderId { get; set; }
+        public long? ServiceId{get;set;}
 
-        public List<int> ExtraIds { get; set; }
+        public List<long?> ExtraIds { get; set; }
 
         public string BookedDate { get; set; }
 
@@ -18,7 +18,7 @@ namespace SKIPQzAPI.Dtos
 
         public string EndTimeSlot { get; set; }
 
-        public int BookingId { get; set; }
+        public long? BookingId { get; set; }
 
         public string UserName { get; set; } //client
 

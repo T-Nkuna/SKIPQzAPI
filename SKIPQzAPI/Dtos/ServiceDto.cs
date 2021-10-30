@@ -13,7 +13,7 @@ namespace SKIPQzAPI.Dtos
 
         public double Duration { get; set; }
 
-        public int ServiceId { get; set; }
+        public long? ServiceId { get; set; }
 
         public decimal Cost { get; set; }
 
@@ -21,6 +21,6 @@ namespace SKIPQzAPI.Dtos
 
         public string ImageUrl { get; set; } = "";
 
-        public List<int> ExtraIds { get; set; }  
+        public List<long?> ExtraIds { get; set; }  
     }
 }
