@@ -55,7 +55,7 @@ namespace SKIPQzAPI.Services
                 .Select(ex=>new ServiceExtras { Extra=ex,Service = service});
              _dbContext.ServiceExtras.RemoveRange(removedServiceExtra);
             await _dbContext.ServiceExtras.AddRangeAsync(addedServiceExtras);
-
+            await _dbContext.SaveChangesAsync();
          
             var extraDuration = _extraService.GetServiceExtras(service.Id)
                                 .Aggregate(0d, (carry, next) => carry + next.Duration);
