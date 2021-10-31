@@ -58,6 +58,9 @@ namespace SKIPQzAPI.Controllers
         [HttpPost]
         public async Task<SysResult<bool>> Post([FromForm] ClientInfoCreateDTO value) => await _accountService.CreateAccount(value);
 
+        [HttpPost("CreateOrgAccount")]
+
+        public async Task<SysResult<long?>> CreateOrgAccount([FromBody] OrganisationCreateDto org) => await _accountService.CreateOrgAccount(org);
 
         [HttpPost("signIn")]
         public async Task<SysResult<string>> Post()
@@ -65,6 +68,14 @@ namespace SKIPQzAPI.Controllers
             _ = Request.Form.TryGetValue("userName", out var userName);
             _ = Request.Form.TryGetValue("password", out var password);
             return await _accountService.SignIn(userName, password);
+        }
+
+        [HttpPost("orgSignIn")]
+        public async Task<SysResult<string>> OrgSignIn()
+        {
+            _ = Request.Form.TryGetValue("userName", out var userName);
+            _ = Request.Form.TryGetValue("password", out var password);
+            return await _accountService.OrgSignIn(userName, password);
         }
         
         [HttpPost("forgotPassword/{userName}")]

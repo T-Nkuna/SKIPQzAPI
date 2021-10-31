@@ -38,7 +38,7 @@ namespace SKIPQzAPI
             services.AddControllersWithViews();
             services.AddDbContext<ApplicationDbContext>(config =>
             {
-                config.UseSqlServer(Configuration.GetConnectionString("Production"));
+                config.UseSqlServer(Configuration.GetConnectionString("Default"));
             });
             services.AddHttpClient();
             services
@@ -59,6 +59,7 @@ namespace SKIPQzAPI
             services.AddScoped<BookingService>();
             services.AddScoped<ExtraService>();
             services.AddScoped<AccountService>();
+            services.AddScoped<OrganisationService>();
             services.AddCors(options =>
             {
                 options.AddPolicy("CrossOriginAccess", config =>

@@ -35,6 +35,8 @@ namespace SKIPQzAPI
             CreateMap<ExtraDto, Extra>();
             CreateMap<ClientInfoDTO,ClientInfo>().ReverseMap();
             CreateMap<ClientInfoDTO, ClientInfoCreateDTO>().ReverseMap();
+            CreateMap<Organisation, OrganisationDto>().ReverseMap();
+            CreateMap<Organisation, OrganisationCreateDto>().ReverseMap();
         }
     }
 

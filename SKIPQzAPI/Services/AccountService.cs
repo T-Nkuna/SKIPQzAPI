@@ -22,10 +22,13 @@ namespace SKIPQzAPI.Services
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly SignInManager<IdentityUser> _singInManager;
         private readonly IEmailService _mailService;
+        private readonly OrganisationService _orgService;
         public AccountService(IMapper mapper, ApplicationDbContext dbContext, 
             UserManager<IdentityUser> userManager,RoleManager<IdentityRole> roleManager,
             SignInManager<IdentityUser> signInManager,
-            IEmailService mailService)
+            IEmailService mailService,
+            OrganisationService orgService
+            )
         {
             _mapper = mapper;
             _dbContext = dbContext;
@@ -33,6 +36,7 @@ namespace SKIPQzAPI.Services
             _roleManager = roleManager;
             _singInManager = signInManager;
             _mailService = mailService;
+            _orgService = orgService;
         }
 
 
@@ -101,6 +105,28 @@ namespace SKIPQzAPI.Services
             return response;
         }
 
+        public async Task<SysResult<string>> OrgSignIn(string userName, string password)
+        {
+            var isValidUserClaim = new List<Claim> { new Claim(ClaimTypes.Name, userName), new Claim(ClaimTypes.Role, RoleName.Organisation) };
+            var claimIdentity = new ClaimsIdentity(isValidUserClaim);
+            var existingUser = await _userManager.FindByNameAsync(userName);
+            var response = new SysResult<string>();
+            if (existingUser != null && (await _userManager.GetRolesAsync(existingUser)).Any(rName => rName == RoleName.Organisation))
+            {
+                var signInResult = await _singInManager.CheckPasswordSignInAsync(existingUser, password, false);
+                response.Ok = signInResult.Succeeded;
+                response.Data = existingUser.UserName;
+
+            }
+            else
+            {
+                response.Ok = false;
+                response.Data = "";
+            }
+
+            return response;
+        }
+
         public async Task<SysResult<bool>> CreateAccount(ClientInfoCreateDTO accountDetails)
         {
 
@@ -145,5 +171,7 @@ namespace SKIPQzAPI.Services
             }
 
         }
+
+        public async Task<SysResult<long?>> CreateOrgAccount(OrganisationCreateDto org) => await _orgService.AddOrganisation(org);
     }
 }

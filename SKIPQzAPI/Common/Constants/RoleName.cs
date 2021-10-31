@@ -10,5 +10,6 @@ namespace SKIPQzAPI.Common.Constants
       
         public static string ServiceProvider = "ServiceProvider";
         public static string Client = "Client";
+        public static string Organisation = "Organisation";
     }
 }

@@ -21,6 +21,8 @@ namespace SKIPQzAPI.DataAccess
         public DbSet<Extra> Extras { get; set; }
         public DbSet<ServiceExtras> ServiceExtras { get; set; }
         public DbSet<ClientInfo> ClientInfo { get; set; }
+
+        public DbSet<Organisation> Organisations { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
     }
 }
