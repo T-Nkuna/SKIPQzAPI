@@ -31,8 +31,8 @@ namespace SKIPQzAPI
             CreateMap<WorkingDay, WorkingDayDto>().ConvertUsing(typeof(WorkingDayConvertor));
             CreateMap<BookingDto, Booking>().ConvertUsing(typeof(BookingDtoConvertor));
             CreateMap<Booking, BookingDto>().ConvertUsing(typeof(BookingConvertor));
-            CreateMap<Extra, ExtraDto>();
-            CreateMap<ExtraDto, Extra>();
+            CreateMap<ExtraDto,Extra>().ReverseMap().ForMember(destination=>destination.ExtraId,opt=>opt.MapFrom(src=>src.Id));
+            
             CreateMap<ClientInfoDTO,ClientInfo>().ReverseMap();
             CreateMap<ClientInfoDTO, ClientInfoCreateDTO>().ReverseMap();
             CreateMap<Organisation, OrganisationDto>().ReverseMap();
