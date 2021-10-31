@@ -25,7 +25,7 @@ namespace SKIPQzAPI
         
             CreateMap<ServiceProviderDto, ServiceProvider>().ConvertUsing(typeof(ServiceProviderDtoConvertor));
 
-            CreateMap<ServiceDto, Service>();
+            CreateMap<ServiceDto, Service>().ForMember(des=>des.Id,config=>config.MapFrom(s=>s.ServiceId));
             CreateMap<Service, ServiceDto>().ConvertUsing(typeof(ServiceConvertor));
             CreateMap<WorkingDayDto, WorkingDay>().ConvertUsing(typeof(WorkingDayDtoConvertor));
             CreateMap<WorkingDay, WorkingDayDto>().ConvertUsing(typeof(WorkingDayConvertor));
