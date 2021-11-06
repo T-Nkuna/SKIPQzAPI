@@ -4,11 +4,14 @@ using Microsoft.Extensions.Configuration;
 using SKIPQzAPI.Common.Constants;
 using SKIPQzAPI.DataAccess;
 using SKIPQzAPI.Dtos;
+using SKIPQzAPI.Integration.PayGate;
+using SKIPQzAPI.Integration.PayGate.Models;
 using SKIPQzAPI.Models;
 using SKIPQzAPI.Models.Time;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace SKIPQzAPI.Services
@@ -27,20 +30,39 @@ namespace SKIPQzAPI.Services
             _configuration = config;
             _extraService = extraService;
             _userManager = userManager;
+
         }
 
-        public async Task<BookingDto> AddBooking(BookingDto bookingDto)
+        public async Task<(BookingDto booking,PayRequest paymentRequest, string transactUrl)> AddBooking(BookingDto bookingDto)
         {
-            var minutesInterval = _dbContext.Services.FirstOrDefault(sv => sv.Id == bookingDto.ServiceId)?.Duration ?? _configuration.GetSection("TimeSlotIntervalLength").Get<double>();
-            bookingDto.EndTimeSlot = new TimeComponent(bookingDto.StartTimeSlot).AddMinutes(minutesInterval).ToString();
-            
-            Booking newBooking = _mapper.Map<Booking>(bookingDto);
-            newBooking.Cost = _extraService.GetServiceExtras(newBooking.ServiceId).Aggregate(0m, (carry, next) => carry + next.Cost)+_dbContext.Services.FirstOrDefault(s=>s.Id==newBooking.ServiceId)?.Cost??0m;
-            newBooking.client = await _userManager.FindByNameAsync(bookingDto.UserName);
-            _dbContext.Add(newBooking);
-            var affected = await _dbContext.SaveChangesAsync();
-            var lastBooking = _dbContext.Bookings.OrderByDescending(bk => bk.Id).FirstOrDefault();
-            return affected > 0 ? _mapper.Map<BookingDto>(lastBooking) : null;
+            try
+            {
+                var minutesInterval = _dbContext.Services.FirstOrDefault(sv => sv.Id == bookingDto.ServiceId)?.Duration ?? _configuration.GetSection("TimeSlotIntervalLength").Get<double>();
+                bookingDto.EndTimeSlot = new TimeComponent(bookingDto.StartTimeSlot).AddMinutes(minutesInterval).ToString();
+
+                Booking newBooking = _mapper.Map<Booking>(bookingDto);
+                newBooking.Id = default;
+                newBooking.Cost = _extraService.GetServiceExtras(newBooking.ServiceId).Aggregate(0m, (carry, next) => carry + next.Cost) + _dbContext.Services.FirstOrDefault(s => s.Id == newBooking.ServiceId)?.Cost ?? 0m;
+                newBooking.client = await _userManager.FindByNameAsync(bookingDto.UserName);
+                _dbContext.Add(newBooking);
+                var affected = await _dbContext.SaveChangesAsync();
+                var lastBooking = _dbContext.Bookings.OrderByDescending(bk => bk.Id).FirstOrDefault();
+
+                var payGateOptions = _configuration.GetSection("PayGate").Get<PayGateOption>();
+                var paymentRequest = lastBooking != null ? new Payment(lastBooking.Cost, lastBooking.client.Email, lastBooking.client.Email, payGateOptions).PaymentRequest : null;
+                (BookingDto booking, PayRequest request, string transactUrl) returned = (null, null, payGateOptions.TRANSACT_URL);
+                if (paymentRequest != null)
+                {
+                    returned.request = paymentRequest;
+                }
+                returned.booking = affected > 0 ? _mapper.Map<BookingDto>(lastBooking) : null;
+                return returned;
+            }
+            catch(Exception ex)
+            {
+                
+                return (null, null, "");
+            }
         }
 
         public async Task<BookingDto> DeleteBooking(int bookingId)

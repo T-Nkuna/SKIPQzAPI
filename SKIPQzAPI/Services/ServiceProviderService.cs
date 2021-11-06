@@ -152,7 +152,7 @@ namespace SKIPQzAPI.Services
                 var matchedStr = pattern.Match(dateString).Value;
                 var strDigits = matchedStr.Split('-').Select(digitStr => Convert.ToInt32(digitStr)).ToList();
                 var bookedDate = new DateTime(strDigits[0], strDigits[1]+1, strDigits[2]);
-                var bookedTimeIntervals = _dbContext.Bookings.Where(booking => booking.Id == serviceProviderId && booking.BookedDate.Date == bookedDate.Date).Select(bk=>new TimeComponentInterval { EndTime = bk.BookedTimeInterval.EndTime,StartTime=bk.BookedTimeInterval.StartTime,TimeComponentIntervalId=bk.BookedTimeInterval.TimeComponentIntervalId,WorkingDayId=bk.BookedTimeInterval.WorkingDayId}).ToList();
+                var bookedTimeIntervals = _dbContext.Bookings.Where(booking => booking.ServiceProviderId == serviceProviderId && booking.BookedDate.Date == bookedDate.Date).Select(bk=>new TimeComponentInterval { EndTime = bk.BookedTimeInterval.EndTime,StartTime=bk.BookedTimeInterval.StartTime,TimeComponentIntervalId=bk.BookedTimeInterval.TimeComponentIntervalId,WorkingDayId=bk.BookedTimeInterval.WorkingDayId}).ToList();
                 var availableSlots = new List<string>();
                 foreach(var slot in GetServiceTimeSlots(serviceProviderId, serviceId, bookedDate.DayOfWeek))
                 {

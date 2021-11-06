@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using SKIPQzAPI.Dtos;
 using SKIPQzAPI.Models;
 using SKIPQzAPI.Models.Time;
@@ -38,7 +39,12 @@ namespace SKIPQzAPI.Controllers
         [HttpPost]
         public async Task<BookingDto> Post([FromBody] BookingDto value)
         {
-            return await _bookingService.AddBooking(value);
+            var (booking,request,transactUrl) = await _bookingService.AddBooking(value);
+            if (request != null)
+            {
+               
+            }
+            return booking;
         }
 
         [HttpGet("UserBookings")]
