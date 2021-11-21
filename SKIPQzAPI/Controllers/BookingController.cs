@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using SKIPQzAPI.Dtos;
+using SKIPQzAPI.Integration.PayGate;
 using SKIPQzAPI.Models;
 using SKIPQzAPI.Models.Time;
 using SKIPQzAPI.Services;
@@ -39,10 +41,12 @@ namespace SKIPQzAPI.Controllers
         [HttpPost]
         public async Task<BookingDto> Post([FromBody] BookingDto value)
         {
-            var (booking,request,transactUrl) = await _bookingService.AddBooking(value);
-            if (request != null)
+            var (booking,payment,transactUrl) = await _bookingService.AddBooking(value);
+            if (payment != null)
             {
-               
+
+               var paymentResponse = await payment.ProcessPaymentRequest();
+
             }
             return booking;
         }

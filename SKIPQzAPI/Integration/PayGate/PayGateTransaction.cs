@@ -1,14 +1,14 @@
 ﻿using System.Linq;
 using SKIPQzAPI.Integration.PayGate.Models;
-using System.Security.Cryptography;
-using System.Text;
+using System.Threading.Tasks;
+using System.Collections.Specialized;
 
 namespace SKIPQzAPI.Integration.PayGate
 {
     public class Payment
     {
         private readonly PayRequest _request;
-       
+        private readonly PaygatePayweb3 _paygate;
         
         public Payment(decimal amount,string reference, string notifyEmail,PayGateOption payGateOption)
         {
@@ -20,23 +20,17 @@ namespace SKIPQzAPI.Integration.PayGate
                 PAYGATE_ID = payGateOption.PAYGATE_ID,
             };
 
-            var checkSumStr = ValueString(_request) + payGateOption.Encryption_KEY;
-           // _request.CHECKSUM = MD5(checkSumStr);
-
+            _paygate = new PaygatePayweb3();
+            _paygate.RequestPayload = _request.AsEnumerable().ToDictionary(k=>k.Key,v=>v.Value);
+            _paygate.EncryptionKey = payGateOption.Encryption_KEY;
+            _request.CHECKSUM = _paygate.GenerateChecksum(_paygate.RequestPayload);
 
         }
 
         public PayRequest PaymentRequest => _request;
-
-        public string ValueString(PayRequest request)
-        {
-            var type = request.GetType();
-            return type.GetProperties()
-                .Where(prop=>prop.CanRead && prop.CanWrite)
-                .Select(prop =>
-                {
-                    return prop.GetValue(request)?.ToString()??"";
-                }).Aggregate("", (carry, next) => carry + next);
-        }
+        
+       public async Task<NameValueCollection> ProcessPaymentRequest() => await _paygate.DoInitiate();
+          
+        
     }
 }

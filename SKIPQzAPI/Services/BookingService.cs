@@ -33,7 +33,7 @@ namespace SKIPQzAPI.Services
 
         }
 
-        public async Task<(BookingDto booking,PayRequest paymentRequest, string transactUrl)> AddBooking(BookingDto bookingDto)
+        public async Task<(BookingDto booking,Payment paymentRequest, string transactUrl)> AddBooking(BookingDto bookingDto)
         {
             try
             {
@@ -49,11 +49,11 @@ namespace SKIPQzAPI.Services
                 var lastBooking = _dbContext.Bookings.OrderByDescending(bk => bk.Id).FirstOrDefault();
 
                 var payGateOptions = _configuration.GetSection("PayGate").Get<PayGateOption>();
-                var paymentRequest = lastBooking != null ? new Payment(lastBooking.Cost, lastBooking.client.Email, lastBooking.client.Email, payGateOptions).PaymentRequest : null;
-                (BookingDto booking, PayRequest request, string transactUrl) returned = (null, null, payGateOptions.TRANSACT_URL);
-                if (paymentRequest != null)
+                var payment = lastBooking != null ? new Payment(lastBooking.Cost, lastBooking.client.Email, lastBooking.client.Email, payGateOptions) : null;
+                (BookingDto booking, Payment request, string transactUrl) returned = (null, null, payGateOptions.TRANSACT_URL);
+                if (payment != null)
                 {
-                    returned.request = paymentRequest;
+                    returned.request = payment;
                 }
                 returned.booking = affected > 0 ? _mapper.Map<BookingDto>(lastBooking) : null;
                 return returned;
